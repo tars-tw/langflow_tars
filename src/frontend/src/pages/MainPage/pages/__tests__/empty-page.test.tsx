@@ -28,8 +28,7 @@ jest.mock(
   }),
 );
 
-jest.mock("@/assets/logo_dark.png", () => "logo_dark.png");
-jest.mock("@/assets/logo_light.png", () => "logo_light.png");
+jest.mock("@/assets/tars_ai_logo.png", () => "tars_ai_logo.png");
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
