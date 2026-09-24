@@ -5,10 +5,7 @@ import AppHeader from "../index";
 
 // Mock heavy children — this suite only asserts the header shell semantics
 // (landmark + notification bell) owned by AppHeader itself.
-jest.mock("@/assets/LangflowLogo.svg?react", () => ({
-  __esModule: true,
-  default: () => null,
-}));
+jest.mock("@/assets/tars_ai_logo.png", () => "tars_ai_logo.png");
 jest.mock("@/alerts/alertDropDown", () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
