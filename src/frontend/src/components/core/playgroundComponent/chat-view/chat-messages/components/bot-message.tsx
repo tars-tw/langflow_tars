@@ -1,10 +1,10 @@
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import LangflowLogo from "@/assets/LangflowLogo.svg?react";
 import IconComponent, {
   ForwardedIconComponent,
 } from "@/components/common/genericIconComponent";
 import MessageMetadata from "@/components/common/messageMetadataComponent";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import { ContentBlockDisplay } from "@/components/core/chatComponents/ContentBlockDisplay";
 import HumanInputCard from "@/components/core/chatComponents/HumanInputCard";
 import { findHumanInputContent } from "@/controllers/API/agui/human-input-card";
@@ -201,7 +201,7 @@ export const BotMessage = memo(
                   }
                 >
                   <div className="flex h-5 w-5 items-center justify-center">
-                    <LangflowLogo
+                    <TarsLogo
                       className="h-4 w-4 text-black"
                       aria-hidden="true"
                     />

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import langflowAssistantIcon from "@/assets/langflow_assistant.svg";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 
 export function AssistantDisabledState() {
   const { t } = useTranslation();
@@ -10,8 +10,7 @@ export function AssistantDisabledState() {
       data-testid="assistant-disabled-state"
     >
       <div className="mb-6 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl">
-        <img
-          src={langflowAssistantIcon}
+        <TarsLogo
           alt={t("assistant.title")}
           className="h-full w-full object-cover"
         />
