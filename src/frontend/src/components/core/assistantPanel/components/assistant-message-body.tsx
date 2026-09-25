@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SimplifiedCodeTabComponent from "@/components/core/codeTabsComponent";
@@ -72,6 +73,7 @@ export function AssistantMessageBody({
   onAcknowledgeValidation,
   onOpenFile,
 }: AssistantMessageBodyProps) {
+  const { t } = useTranslation();
   const isStreaming = message.status === "streaming";
   const hasValidatedResult =
     message.result?.validated && message.result?.componentCode;
@@ -169,7 +171,9 @@ export function AssistantMessageBody({
 
   if (message.status === "cancelled") {
     return (
-      <span className="text-sm text-muted-foreground/60 italic">Cancelled</span>
+      <span className="text-sm text-muted-foreground/60 italic">
+        {t("assistant.cancelled")}
+      </span>
     );
   }
 

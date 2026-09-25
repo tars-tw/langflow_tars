@@ -177,7 +177,7 @@ const McpSidebarGroup = ({
               setDeleteModalOpen(false);
               setServerToDelete(null);
             }}
-            description={"MCP Server"}
+            description={t("mcp.deleteDescription")}
           />
         </SidebarMenu>
       </SidebarGroupContent>

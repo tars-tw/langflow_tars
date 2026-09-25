@@ -125,8 +125,10 @@ export default function AddProviderModal({
         </DialogTitle>
         <DialogDescription className="sr-only">
           {provider
-            ? `Configure environment ${provider.name}.`
-            : "Add a new watsonx Orchestrate environment."}
+            ? t("deployments.configureEnvironmentNamed", {
+                name: provider.name,
+              })
+            : t("deployments.addWxoEnvironment")}
         </DialogDescription>
 
         <div className="flex flex-col gap-4 pt-2">

@@ -32,7 +32,7 @@ export const ModelProviderCount = () => {
         aria-label={t("modelProviders.title")}
       >
         <ForwardedIconComponent name="BrainCog" className="w-5 h-5" />
-        <div className="text-sm">Models</div>
+        <div className="text-sm">{t("sidebar.category.models")}</div>
         <Badge
           variant="secondaryStatic"
           size="sq"

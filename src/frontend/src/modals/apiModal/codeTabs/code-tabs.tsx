@@ -228,7 +228,7 @@ export default function APITabsComponent() {
                   <span>{tab.title}</span>
                   {tab.beta && (
                     <span className="rounded border border-border px-1 py-px text-[9px] font-medium uppercase leading-none text-muted-foreground">
-                      beta
+                      {t("sidebar.betaLabel")}
                     </span>
                   )}
                 </TabsTrigger>

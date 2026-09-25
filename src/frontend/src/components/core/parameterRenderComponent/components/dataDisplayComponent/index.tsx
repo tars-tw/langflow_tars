@@ -1,4 +1,5 @@
 import { type CSSProperties, type ReactNode, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import BaseModal from "@/modals/baseModal";
@@ -122,6 +123,7 @@ function Pill({
 }
 
 function SectionBody({ section, hue }: { section: Section; hue: number }) {
+  const { t } = useTranslation();
   const accentSolid = `hsl(${hue} 70% 55%)`;
   return (
     <div className="flex flex-col gap-3">
@@ -164,7 +166,7 @@ function SectionBody({ section, hue }: { section: Section; hue: number }) {
                       className="h-1.5 w-1.5 rounded-full"
                       style={{ backgroundColor: accentSolid }}
                     />
-                    required
+                    {t("field.required")}
                   </span>
                 )}
               </div>

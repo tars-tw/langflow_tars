@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { cn } from "@/utils/utils";
 
@@ -9,6 +10,7 @@ export default function DragWrapComponent({
   onFileDrop?: (e: any) => void;
   children: JSX.Element | JSX.Element[];
 }) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const isIOModalOpen = useFlowsManagerStore((state) => state.IOModalOpen);
@@ -110,7 +112,7 @@ export default function DragWrapComponent({
         >
           <div className="w-44 rounded-2xl bg-accent-indigo-foreground px-2.5 py-0.5 text-center backdrop-blur-sm">
             <span className="font-mono text-xs text-primary-foreground">
-              Drop file{filesCount > 1 ? "s" : ""} to upload
+              {t("files.dropToUpload", { count: filesCount })}
             </span>
           </div>
         </div>

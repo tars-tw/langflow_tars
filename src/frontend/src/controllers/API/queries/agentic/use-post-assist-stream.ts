@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import { getURL } from "../../helpers/constants";
 import type {
   AgenticAssistRequest,
@@ -48,7 +49,7 @@ function processSSELine(
   if (!event) {
     callbacks.onError?.({
       event: "error",
-      message: "Received malformed event from server",
+      message: i18n.t("errors.receivedMalformedEvent"),
     });
     return { done: false };
   }
@@ -127,7 +128,7 @@ export async function postAssistStream(
   if (!reader) {
     callbacks.onError?.({
       event: "error",
-      message: "No response body",
+      message: i18n.t("errors.noResponseBody"),
     });
     return;
   }
@@ -172,8 +173,7 @@ export async function postAssistStream(
     // surface a terminal error so the caller clears the spinner instead of hanging.
     callbacks.onError?.({
       event: "error",
-      message:
-        "The assistant connection ended unexpectedly before completing. Please try again.",
+      message: i18n.t("assistant.connectionEnded"),
     });
   } finally {
     await reader.cancel();

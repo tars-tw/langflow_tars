@@ -118,18 +118,14 @@ const JsonEditor = ({
             } catch (_jsonError) {
               setErrorData({
                 title: t("jsonEditor.invalidResult"),
-                list: [
-                  "The filtered result contains values that cannot be serialized to JSON",
-                ],
+                list: [t("jsonEditor.notSerializable")],
               });
               return;
             }
           } else {
             setErrorData({
               title: t("jsonEditor.invalidResult"),
-              list: [
-                "The filtered result must be a JSON object or array, not a primitive value",
-              ],
+              list: [t("jsonEditor.primitiveResult")],
             });
             return;
           }
@@ -151,7 +147,7 @@ const JsonEditor = ({
         if (result === undefined || result === null) {
           setErrorData({
             title: t("jsonEditor.invalidPath"),
-            list: [`Path '${transformQuery}' led to undefined or null value`],
+            list: [t("jsonEditor.pathUndefined", { path: transformQuery })],
           });
           return;
         }
@@ -164,7 +160,10 @@ const JsonEditor = ({
               setErrorData({
                 title: t("jsonEditor.invalidArrayIndex"),
                 list: [
-                  `Index ${index} is out of bounds for array of length ${result.length}`,
+                  t("jsonEditor.indexOutOfBounds", {
+                    index,
+                    length: result.length,
+                  }),
                 ],
               });
               return;
@@ -178,7 +177,7 @@ const JsonEditor = ({
               if (!(key in item)) {
                 setErrorData({
                   title: t("jsonEditor.invalidProperty"),
-                  list: [`Property '${key}' does not exist in array items`],
+                  list: [t("jsonEditor.propertyMissingInItems", { key })],
                 });
                 return undefined;
               }
@@ -189,7 +188,7 @@ const JsonEditor = ({
           if (!(key in result)) {
             setErrorData({
               title: t("jsonEditor.invalidProperty"),
-              list: [`Property '${key}' does not exist in object`],
+              list: [t("jsonEditor.propertyMissing", { key })],
             });
             return;
           }
@@ -216,17 +215,13 @@ const JsonEditor = ({
           } catch (_jsonError) {
             setErrorData({
               title: t("jsonEditor.invalidResult"),
-              list: [
-                "The filtered result contains values that cannot be serialized to JSON",
-              ],
+              list: [t("jsonEditor.notSerializable")],
             });
           }
         } else {
           setErrorData({
             title: t("jsonEditor.invalidResult"),
-            list: [
-              "The filtered result must be a JSON object or array, not a primitive value",
-            ],
+            list: [t("jsonEditor.primitiveResult")],
           });
         }
       } else {
