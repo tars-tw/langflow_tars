@@ -422,7 +422,9 @@ const KnowledgeBasesTab = ({
         open={actions.isDeleteModalOpen}
         setOpen={actions.setIsDeleteModalOpen}
         onConfirm={actions.confirmDelete}
-        description={`knowledge base "${actions.knowledgeBaseToDelete?.name || ""}"`}
+        description={t("knowledge.deleteDescriptionNamed", {
+          name: actions.knowledgeBaseToDelete?.name || "",
+        })}
         note={t("knowledge.thisActionCannotBeUndone")}
         onCloseAutoFocus={(event) => {
           event.preventDefault();
@@ -438,10 +440,12 @@ const KnowledgeBasesTab = ({
         open={actions.isBulkDeleteModalOpen}
         setOpen={actions.setIsBulkDeleteModalOpen}
         onConfirm={actions.confirmBulkDelete}
-        description={`${actions.deletableSelected.length} knowledge base(s)`}
+        description={t("knowledge.deleteDescriptionCount", {
+          count: actions.deletableSelected.length,
+        })}
         note={
           actions.deletableSelected.length < selectedFiles.length
-            ? `${selectedFiles.length - actions.deletableSelected.length} ingesting knowledge base(s) will be skipped. ${t("knowledge.thisActionCannotBeUndone")}`
+            ? `${t("knowledge.ingestingSkipped", { count: selectedFiles.length - actions.deletableSelected.length })} ${t("knowledge.thisActionCannotBeUndone")}`
             : t("knowledge.thisActionCannotBeUndone")
         }
         onCloseAutoFocus={(event) => {

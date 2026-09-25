@@ -117,15 +117,22 @@ export function useDBProviderActions({
       setErrorData({
         title: t("settings.dbProviders.errorMissingConfig"),
         list: [
-          `${selectedProvider.label} requires ${selectedProvider.configFields
-            .filter(
-              (field): field is DBProviderTextField =>
-                field.kind !== "boolean" &&
-                field.required &&
-                !getFieldValue(field).trim(),
-            )
-            .map((field) => field.label)
-            .join(", ")}.`,
+          t("settings.dbProviders.requiresFields", {
+            provider: selectedProvider.label,
+            fields: selectedProvider.configFields
+              .filter(
+                (field): field is DBProviderTextField =>
+                  field.kind !== "boolean" &&
+                  field.required &&
+                  !getFieldValue(field).trim(),
+              )
+              .map((field) =>
+                t(`settings.dbProviders.fields.${field.variableKey}.label`, {
+                  defaultValue: field.label,
+                }),
+              )
+              .join(t("common.listSeparator")),
+          }),
         ],
       });
       return false;
@@ -196,15 +203,22 @@ export function useDBProviderActions({
       setErrorData({
         title: t("settings.dbProviders.errorMissingConfig"),
         list: [
-          `${selectedProvider.label} requires ${selectedProvider.configFields
-            .filter(
-              (field): field is DBProviderTextField =>
-                field.kind !== "boolean" &&
-                field.required &&
-                !getFieldValue(field).trim(),
-            )
-            .map((field) => field.label)
-            .join(", ")}.`,
+          t("settings.dbProviders.requiresFields", {
+            provider: selectedProvider.label,
+            fields: selectedProvider.configFields
+              .filter(
+                (field): field is DBProviderTextField =>
+                  field.kind !== "boolean" &&
+                  field.required &&
+                  !getFieldValue(field).trim(),
+              )
+              .map((field) =>
+                t(`settings.dbProviders.fields.${field.variableKey}.label`, {
+                  defaultValue: field.label,
+                }),
+              )
+              .join(t("common.listSeparator")),
+          }),
         ],
       });
       return;

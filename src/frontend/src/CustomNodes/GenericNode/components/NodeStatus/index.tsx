@@ -487,7 +487,7 @@ export default function NodeStatus({
           )}
 
           {nodeAuth && showNode && (
-            <ShadTooltip content={nodeAuth.auth_tooltip || "Connect"}>
+            <ShadTooltip content={nodeAuth.auth_tooltip || t("node.connect")}>
               <div>
                 <Button
                   unstyled
@@ -504,7 +504,7 @@ export default function NodeStatus({
                   )}
                   onClick={handleClickConnect}
                   data-testid={getDataTestId()}
-                  aria-label={nodeAuth.auth_tooltip || "Connect"}
+                  aria-label={nodeAuth.auth_tooltip || t("node.connect")}
                 >
                   <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <IconComponent

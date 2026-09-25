@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { isBlockedByCatalogPolicy } from "@/CustomNodes/helpers/check-code-validity";
 import { usePermissions } from "@/contexts/permissionsContext";
+import i18n from "@/i18n";
 import useAlertStore from "@/stores/alertStore";
 import useFlowStore from "@/stores/flowStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
@@ -60,9 +61,11 @@ const useAutoSaveFlow = () => {
     if (!reportedBlockedRef.current) {
       reportedBlockedRef.current = true;
       setErrorData({
-        title: "Flow not saved",
+        title: i18n.t("flow.notSaved"),
         list: [
-          `Saving is paused while this flow uses components disabled by an administrator: ${names.join(", ")}. Remove them to resume saving.`,
+          i18n.t("flow.savingPausedBlocked", {
+            names: names.join(i18n.t("common.listSeparator")),
+          }),
         ],
       });
     }

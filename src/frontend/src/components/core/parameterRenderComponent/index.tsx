@@ -254,7 +254,7 @@ export function ParameterRenderComponent({
           <ToolsComponent
             {...baseInputProps}
             description={templateData.info || t("paramRender.addOrEditData")}
-            title={nodeClass?.display_name ?? "Tools"}
+            title={nodeClass?.display_name ?? t("common.tools")}
             icon={nodeClass?.icon ?? ""}
             template={nodeClass?.template}
           />

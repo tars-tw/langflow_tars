@@ -11,7 +11,6 @@ import {
   writeAssistantDiscovered,
 } from "@/components/core/assistantPanel/hooks/assistant-discovery-storage";
 import { Button } from "@/components/ui/button";
-import { APP_NAME } from "@/customization/config-constants";
 import useAssistantManagerStore from "@/stores/assistantManagerStore";
 import useFlowBuilderWelcomeStore from "@/stores/flowBuilderWelcomeStore";
 import useFlowStore from "@/stores/flowStore";
@@ -191,7 +190,7 @@ const CanvasControls = ({
                 aria-label={t("assistant.title")}
               >
                 <TarsLogo
-                  alt={`${APP_NAME} Assistant`}
+                  alt={t("assistant.title")}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               </Button>

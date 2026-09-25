@@ -190,7 +190,7 @@ const HeaderComponent = ({
                       size="xq"
                       className="h-auto shrink-0 rounded px-1 py-px text-[11px] leading-none text-accent-purple-foreground"
                     >
-                      Beta
+                      {t("sidebar.betaLabel")}
                     </Badge>
                   )}
                 </div>
