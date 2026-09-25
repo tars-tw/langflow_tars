@@ -191,7 +191,7 @@ const Footer: React.FC<{
       {close && (
         <DialogClose asChild>
           <Button data-testid="btn-close-modal" type="button">
-            Close
+            {t("common.close")}
           </Button>
         </DialogClose>
       )}
@@ -270,6 +270,7 @@ function BaseModal({
   width: customWidth,
   ariaLabel,
 }: BaseModalProps) {
+  const { t } = useTranslation();
   const headerChild = React.Children.toArray(children).find(
     (child) => (child as React.ReactElement).type === Header,
   );
@@ -352,7 +353,7 @@ function BaseModal({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={ariaLabel ?? "Dialog"}
+          aria-label={ariaLabel ?? t("common.dialog")}
           className="min-h-full w-full flex-1 overflow-hidden"
         >
           {modalContent}

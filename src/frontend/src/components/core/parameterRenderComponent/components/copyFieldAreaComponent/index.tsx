@@ -130,7 +130,7 @@ export default function CopyFieldAreaComponent({
       <button
         type="button"
         onClick={handleCopy}
-        aria-label={isCopied ? "Copied" : "Copy"}
+        aria-label={isCopied ? t("common.copied") : t("common.copy")}
       >
         <IconComponent
           dataTestId={`btn_copy_${id?.toLowerCase()}${

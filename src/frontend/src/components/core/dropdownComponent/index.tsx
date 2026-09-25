@@ -289,7 +289,7 @@ export default function Dropdown({
                     name="RefreshCcw"
                     className={cn("refresh-icon h-3 w-3 text-primary")}
                   />
-                  Refresh list
+                  {t("dropdown.refreshList")}
                 </div>
               </Button>
             </CommandItem>

@@ -206,9 +206,7 @@ export default function MultiselectComponent({
   if (Object.keys(options).length === 0 && !combobox) {
     return (
       <div>
-        <span className="text-sm italic">
-          No parameters are available for display.
-        </span>
+        <span className="text-sm italic">{t("multiselect.noParameters")}</span>
       </div>
     );
   }

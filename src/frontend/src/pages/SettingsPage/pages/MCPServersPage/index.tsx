@@ -238,7 +238,7 @@ export default function MCPServersPage() {
                 setDeleteModalOpen(false);
                 setServerToDelete(null);
               }}
-              description={"MCP Server"}
+              description={t("mcp.deleteDescription")}
             />
           </>
         ) : (

@@ -75,7 +75,7 @@ export default function NoticeAlert({
                   to={link}
                   className="whitespace-nowrap font-medium text-info-foreground hover:text-accent-foreground"
                 >
-                  Details
+                  {t("common.details")}
                 </CustomLink>
               )}
             </p>

@@ -44,7 +44,9 @@ export default function NodeLegacyComponent({
     >
       <div className="flex items-center gap-3 w-full">
         <div className="h-2.5 w-2.5 rounded-full bg-warning" />
-        <div className="mb-px flex-1 truncate text-mmd font-medium">Legacy</div>
+        <div className="mb-px flex-1 truncate text-mmd font-medium">
+          {t("sidebar.legacyLabel")}
+        </div>
 
         <Button
           variant="ghost"
@@ -58,13 +60,13 @@ export default function NodeLegacyComponent({
           data-testid="dismiss-warning-bar"
           disabled={disabled}
         >
-          Dismiss
+          {t("common.dismiss")}
         </Button>
       </div>
       <div className="text-mmd text-muted-foreground w-full">
         {foundComponents.length > 0 ? (
           <span className="block items-center">
-            Use{" "}
+            {t("node.legacyUse")}{" "}
             {foundComponents.map((component, index) => (
               <Fragment key={component.filterKey}>
                 {index > 0 && ", "}
@@ -81,7 +83,7 @@ export default function NodeLegacyComponent({
             .
           </span>
         ) : (
-          "No direct replacement."
+          t("node.noDirectReplacement")
         )}
       </div>
     </div>
