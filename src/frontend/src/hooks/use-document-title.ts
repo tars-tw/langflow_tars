@@ -1,11 +1,12 @@
 import { useEffect } from "react";
+import { APP_NAME } from "@/customization/config-constants";
 
-export const APP_NAME = "Langflow";
+export { APP_NAME };
 
 /**
  * Builds the tab title for a page. Titles that already carry the product name
- * (e.g. the "Langflow API Keys" settings page) are used as-is so the tab does
- * not read "Langflow API Keys | Langflow".
+ * (e.g. the "<APP_NAME> API Keys" settings page) are used as-is so the tab does
+ * not read "<APP_NAME> API Keys | <APP_NAME>".
  */
 export function formatDocumentTitle(title?: string | null): string {
   const pageTitle = title?.trim();
