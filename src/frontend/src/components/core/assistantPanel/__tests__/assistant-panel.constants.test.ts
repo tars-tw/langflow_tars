@@ -1,3 +1,4 @@
+import { APP_NAME } from "@/customization/config-constants";
 import {
   ASSISTANT_PLACEHOLDERS,
   ASSISTANT_SESSION_STORAGE_KEY_PREFIX,
@@ -8,7 +9,7 @@ import {
 describe("assistant-panel.constants", () => {
   describe("ASSISTANT_TITLE", () => {
     it("should be Langflow Assistant", () => {
-      expect(ASSISTANT_TITLE).toBe("Langflow Assistant");
+      expect(ASSISTANT_TITLE).toBe(`${APP_NAME} Assistant`);
     });
   });
 

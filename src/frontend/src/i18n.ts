@@ -1,5 +1,6 @@
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
+import { APP_NAME } from "./customization/config-constants";
 import en from "./locales/en.json";
 
 const SUPPORTED_LANGUAGES = [
@@ -60,6 +61,7 @@ i18n.use(initReactI18next).init({
   returnEmptyString: false,
   interpolation: {
     escapeValue: false,
+    defaultVariables: { appName: APP_NAME },
   },
 });
 console.info = _consoleInfo;

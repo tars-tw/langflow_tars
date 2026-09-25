@@ -7,7 +7,21 @@
 
 // Import the real i18n instance and loadLanguage (not the mock from jest.setup.js)
 jest.unmock("react-i18next");
+
+import { APP_NAME } from "./customization/config-constants";
 import i18n, { loadLanguage } from "./i18n";
+
+describe("product name interpolation", () => {
+  it("fills {{appName}} from APP_NAME without the caller passing it", () => {
+    expect(i18n.t("page.welcomeTitle")).toBe(`Welcome to ${APP_NAME}`);
+  });
+
+  it("keeps caller variables alongside the default appName", () => {
+    expect(
+      i18n.t("deployments.deleteDeploymentConfirm", { name: "prod" }),
+    ).toContain(`prod in ${APP_NAME}`);
+  });
+});
 
 describe("loadLanguage", () => {
   beforeEach(() => {

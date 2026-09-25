@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import type { AxiosError } from "axios";
+import { APP_NAME } from "@/customization/config-constants";
 import { customShouldSkipAuthRefresh } from "../../utils/custom-should-skip-auth-refresh";
 import { CustomAdminPageMenuItem } from "../custom-admin-page-menu-item";
 import { CustomHeaderMenuItemsTitle } from "../custom-header-menu-items-title";
@@ -27,7 +28,7 @@ describe("OSS auth customization seams", () => {
   it("renders the OSS product name as the login brand", () => {
     render(<CustomLoginBrandTitle />);
 
-    expect(screen.getByText("Langflow")).toBeInTheDocument();
+    expect(screen.getByText(APP_NAME)).toBeInTheDocument();
   });
 
   it("passes signup prompt children through", () => {
