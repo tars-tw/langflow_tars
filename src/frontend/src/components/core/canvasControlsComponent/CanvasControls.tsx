@@ -12,6 +12,7 @@ import {
   writeAssistantDiscovered,
 } from "@/components/core/assistantPanel/hooks/assistant-discovery-storage";
 import { Button } from "@/components/ui/button";
+import { APP_NAME } from "@/customization/config-constants";
 import useAssistantManagerStore from "@/stores/assistantManagerStore";
 import useFlowBuilderWelcomeStore from "@/stores/flowBuilderWelcomeStore";
 import useFlowStore from "@/stores/flowStore";
@@ -196,7 +197,7 @@ const CanvasControls = ({
                     the button reads as "active" alongside the open panel. */}
                 <img
                   src={langflowAssistantIdleIcon}
-                  alt="Langflow Assistant"
+                  alt={`${APP_NAME} Assistant`}
                   className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-150 ${
                     assistantSidebarOpen ? "opacity-0" : "group-hover:opacity-0"
                   }`}

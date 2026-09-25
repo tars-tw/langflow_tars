@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { APP_NAME } from "@/customization/config-constants";
 import useAlertStore from "@/stores/alertStore";
 import { axe } from "@/utils/a11y-test";
 import LoginPage from "../index";
@@ -107,7 +108,7 @@ describe("LoginPage accessibility", () => {
     const loginOptions = screen.getByTestId("custom-login-sso-options");
     const signUpLink = screen.getByRole("link", { name: /sign up/i });
 
-    expect(screen.getByText("Langflow")).toBeInTheDocument();
+    expect(screen.getByText(APP_NAME)).toBeInTheDocument();
     expect(screen.getByText(/don't have an account\?/i)).toBeInTheDocument();
     expect(
       signInButton.compareDocumentPosition(loginOptions) &
@@ -142,7 +143,7 @@ describe("LoginPage accessibility", () => {
     renderLoginPage();
 
     expect(
-      screen.getByRole("region", { name: /sign in to langflow/i }),
+      screen.getByRole("region", { name: `Sign in to ${APP_NAME}` }),
     ).toBeInTheDocument();
   });
 

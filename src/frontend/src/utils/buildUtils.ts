@@ -8,6 +8,7 @@ import {
 import { POLLING_MESSAGES } from "@/constants/constants";
 import { performStreamingRequest } from "@/controllers/API/api";
 import { persistMessageProperties } from "@/controllers/API/helpers/persist-message-properties";
+import { APP_NAME } from "@/customization/config-constants";
 import { transformBuildErrorMessages } from "@/customization/utils/custom-build-error-transform";
 import {
   customBuildUrl,
@@ -443,7 +444,7 @@ export async function buildFlowVertices({
     }
     onBuildError!("Error Building Flow", [
       (error as Error).message ||
-        "Langflow was not able to connect to the server. Please make sure your connection is working properly.",
+        `${APP_NAME} was not able to connect to the server. Please make sure your connection is working properly.`,
     ]);
     throw error;
   }

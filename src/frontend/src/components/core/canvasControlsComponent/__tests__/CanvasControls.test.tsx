@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { APP_NAME } from "@/customization/config-constants";
 import CanvasControls from "../CanvasControls";
 
 // The modal/dialog/dropdown overlay layer in the app all sits at `z-50`
@@ -149,7 +150,7 @@ describe("CanvasControls", () => {
     render(<CanvasControls selectedNode={null} />);
 
     expect(screen.getByText("New")).toBeInTheDocument();
-    expect(screen.getByAltText("Langflow Assistant")).toBeInTheDocument();
+    expect(screen.getByAltText(`${APP_NAME} Assistant`)).toBeInTheDocument();
   });
 
   it("should_hide_new_badge_when_assistant_already_discovered", () => {

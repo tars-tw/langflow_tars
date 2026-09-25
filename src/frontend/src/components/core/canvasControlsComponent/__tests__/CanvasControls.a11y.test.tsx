@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { APP_NAME } from "@/customization/config-constants";
 import { axe } from "@/utils/a11y-test";
 import CanvasControls from "../CanvasControls";
 
@@ -138,7 +139,7 @@ describe("CanvasControls toolbar accessibility", () => {
       screen.getByTestId("canvas_controls_minimize_all"),
     ).toHaveAccessibleName("Minimize all");
     expect(screen.getByTestId("assistant-button")).toHaveAccessibleName(
-      "Langflow Assistant",
+      `${APP_NAME} Assistant`,
     );
   });
 
