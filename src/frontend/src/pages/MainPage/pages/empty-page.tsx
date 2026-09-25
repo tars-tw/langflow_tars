@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import tarsLogo from "@/assets/tars_ai_logo.png";
 import { ForwardedIconComponent } from "@/components/common/genericIconComponent";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import CardsWrapComponent from "@/components/core/cardsWrapComponent";
 import { useStartNewFlow } from "@/components/core/flowBuilderWelcome/hooks/use-start-new-flow";
 import { Button } from "@/components/ui/button";
@@ -27,11 +27,10 @@ export const EmptyPageCommunity = ({
         <div className="m-0 h-full w-full bg-background p-0">
           <div className="z-50 flex h-full w-full flex-col items-center justify-center gap-5">
             <div className="z-50 flex flex-col items-center gap-2">
-              <img
-                src={tarsLogo}
+              <TarsLogo
                 alt="TARS AI"
                 data-testid="empty_page_logo"
-                className="z-50 mb-2 h-24 w-24 pointer-events-none select-none"
+                className="z-50 mb-2 h-24 w-24"
               />
               <span
                 data-testid="mainpage_title"

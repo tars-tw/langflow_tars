@@ -2,7 +2,7 @@ import * as Form from "@radix-ui/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
-import LangflowLogo from "@/assets/LangflowLogo.svg?react";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import { extractApiErrorMessage } from "@/controllers/API/helpers/extract-api-error-message";
 import { useLoginUser } from "@/controllers/API/queries/auth";
 import { CustomLink } from "@/customization/components/custom-link";
@@ -120,7 +120,7 @@ export default function LoginPage(): JSX.Element {
       <main className="relative z-10 flex min-h-svh w-full flex-col items-center justify-center px-6 py-10">
         <div className="flex w-full max-w-[420px] flex-col items-center gap-8">
           <div className="flex items-center gap-2">
-            <LangflowLogo
+            <TarsLogo
               title={t("common.langflowLogo")}
               className="h-12 w-12 text-foreground"
             />

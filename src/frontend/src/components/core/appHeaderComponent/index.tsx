@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AlertDropdown from "@/alerts/alertDropDown";
-import tarsLogo from "@/assets/tars_ai_logo.png";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ModelProviderCount from "@/components/common/modelProviderCountComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import CustomAccountMenu from "@/customization/components/custom-AccountMenu";
@@ -65,12 +65,7 @@ export default function AppHeader(): JSX.Element {
           data-testid="icon-ChevronLeft"
           aria-label={t("header.home")}
         >
-          <img
-            src={tarsLogo}
-            alt=""
-            aria-hidden="true"
-            className="h-6 w-6 pointer-events-none select-none"
-          />
+          <TarsLogo className="h-6 w-6" aria-hidden="true" />
         </Button>
         <CustomOrgSelector />
       </div>
