@@ -1,5 +1,7 @@
 import { normalizeBasePath } from "./base-path";
 
+/** Product name shown throughout the UI (page titles, headings, messages). */
+export const APP_NAME = "Tars Workflow";
 // The backend sets the base element before any frontend modules execute.
 const documentBase =
   typeof document === "undefined"
@@ -17,6 +19,7 @@ export const HEALTH_CHECK_URL = `${BASENAME}/health_check`;
 export const DOCS_LINK = "https://docs.langflow.org";
 
 export default {
+  APP_NAME,
   DOCS_LINK,
   BASENAME,
   PORT,

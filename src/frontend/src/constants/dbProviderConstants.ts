@@ -1,3 +1,4 @@
+import { APP_NAME } from "@/customization/config-constants";
 import type { GlobalVariable } from "@/types/global_variables";
 
 // The stored value (env-var key) intentionally keeps its legacy name so
@@ -79,11 +80,10 @@ export interface DBProviderOption {
 
 export const DB_PROVIDER_OPTIONS: DBProviderOption[] = [
   {
-    id: "sqlite",
-    label: "SQLite Local",
-    description:
-      "Local vector storage bundled with Langflow. No additional configuration required.",
-    icon: "database",
+    id: "chroma",
+    label: "Chroma Local",
+    description: `Local vector storage bundled with ${APP_NAME}. No additional configuration required.`,
+    icon: "Chroma",
     status: "available",
     defaultEnabled: true,
     configFields: [],
