@@ -4,9 +4,8 @@ import { ArrowRight, X } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
-import langflowAssistantIcon from "@/assets/langflow_assistant.svg";
-import langflowAssistantIdleIcon from "@/assets/langflow_assistant_idle.svg";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import {
   readAssistantDiscovered,
   writeAssistantDiscovered,
@@ -188,28 +187,9 @@ const CanvasControls = ({
                 title={locked ? t("version.readOnly") : undefined}
                 aria-label={t("assistant.title")}
               >
-                {/* Idle state — uses the design-tuned
-                    ``langflow_assistant_idle.svg`` (noise filter + brand tint
-                    baked into the SVG). Hidden whenever the panel is open so
-                    the button reads as "active" alongside the open panel. */}
-                <img
-                  src={langflowAssistantIdleIcon}
+                <TarsLogo
                   alt={`${APP_NAME} Assistant`}
-                  className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-150 ${
-                    assistantSidebarOpen ? "opacity-0" : "group-hover:opacity-0"
-                  }`}
-                />
-                {/* Brand-lit icon — surfaces on hover AND while the panel is
-                    open; both states share the same active brand identity. */}
-                <img
-                  src={langflowAssistantIcon}
-                  alt=""
-                  aria-hidden="true"
-                  className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-150 ${
-                    assistantSidebarOpen
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100"
-                  }`}
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               </Button>
             </div>

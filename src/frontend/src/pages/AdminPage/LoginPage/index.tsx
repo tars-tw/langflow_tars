@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
-import LangflowLogo from "@/assets/LangflowLogo.svg?react";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import { useLoginUser } from "@/controllers/API/queries/auth";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { Button } from "../../../components/ui/button";
@@ -55,7 +55,7 @@ export default function LoginAdminPage() {
   return (
     <main className="flex h-full w-full flex-col items-center justify-center bg-muted">
       <div className="flex w-72 flex-col items-center justify-center gap-2">
-        <LangflowLogo
+        <TarsLogo
           title={t("common.langflowLogo")}
           className="h-10 w-10 scale-[1.5]"
         />
