@@ -1,7 +1,7 @@
 {
-  "name": "Tars Workflow",
-  "short_name": "Tars Workflow",
-  "description": "Tars Workflow is a low-code builder that makes it easier to build powerful AIs that can use any API, model, or database.",
+  "name": "TARS Workflow",
+  "short_name": "TARS Workflow",
+  "description": "TARS Workflow is a low-code builder that makes it easier to build powerful AIs that can use any API, model, or database.",
   "icons": [
     {
       "src": "icons/32x32.png",
