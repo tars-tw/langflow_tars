@@ -57,6 +57,7 @@ function FormInputBranch({
   allowAutofill,
   ariaLabelledBy,
 }: FormInputBranchProps) {
+  const { t } = useTranslation();
   const [cursor, setCursor] = useState<number | null>(null);
 
   const commitValue = useCallback(
@@ -114,7 +115,7 @@ function FormInputBranch({
           password && !editNode ? "pr-10" : "",
           className!,
         )}
-        placeholder={password && editNode ? "Key" : placeholder}
+        placeholder={password && editNode ? t("common.key") : placeholder}
         onCopy={(e) => {
           e.preventDefault();
         }}
@@ -335,7 +336,9 @@ export default function InputComponent({
       {password && (!setSelectedOption || selectedOption === "") && (
         <button
           type="button"
-          aria-label={pwdVisible ? "Hide password" : "Show password"}
+          aria-label={
+            pwdVisible ? t("input.hidePassword") : t("input.showPassword")
+          }
           aria-pressed={pwdVisible}
           // w-6 + centering gives the toggle the 24px minimum target width
           // (WCAG 2.5.8); mr-2.5 keeps the 20px icon where mr-3 put it.

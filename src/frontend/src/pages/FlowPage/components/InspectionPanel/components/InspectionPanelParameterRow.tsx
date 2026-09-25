@@ -123,7 +123,7 @@ export default function InspectionPanelParameterRow({
               <button
                 type="button"
                 className="cursor-help rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                aria-label={`${title} info`}
+                aria-label={t("inspectionPanel.infoAria", { title })}
               >
                 <IconComponent
                   name="Info"
@@ -179,7 +179,7 @@ export default function InspectionPanelParameterRow({
               )}
               data-testid={`inspector-api-${name}`}
               aria-pressed={isEffectivelyExposed}
-              aria-label={`${title} API`}
+              aria-label={t("inspectionPanel.apiAria", { title })}
             >
               API
             </Button>

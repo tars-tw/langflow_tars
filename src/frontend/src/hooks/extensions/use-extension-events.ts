@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/controllers/API/api";
 import { getURL } from "@/controllers/API/helpers/constants";
+import i18n from "@/i18n";
 import useAlertStore from "@/stores/alertStore";
 import { useTypesStore } from "@/stores/typesStore";
 import type {
@@ -167,13 +168,22 @@ export function useExtensionEvents(): UseExtensionEventsReturn {
             const warningList = renderTypedErrorList(warnings);
             alert.setSuccessData({
               title: hasDelta
-                ? `Reloaded ${bundle} (+${added} / -${removed} / ~${changed} components)`
-                : `Reloaded ${bundle} (no source changes detected)`,
+                ? i18n.t("sidebar.bundles.reload.success.withChanges", {
+                    bundle,
+                    added,
+                    removed,
+                    changed,
+                  })
+                : i18n.t("sidebar.bundles.reload.success.noChanges", {
+                    bundle,
+                  }),
               ...(warningList ? { list: warningList.list } : {}),
             });
             if (warningList && warningList.list.length > 0) {
               alert.setNoticeData({
-                title: `Reloaded ${bundle} with warnings`,
+                title: i18n.t("sidebar.bundles.reload.success.warnings", {
+                  bundle,
+                }),
                 list: warningList.list,
               });
             }
@@ -197,8 +207,15 @@ export function useExtensionEvents(): UseExtensionEventsReturn {
             const sign = event.type === "components_added" ? "+" : "-";
             alert.setNoticeData({
               title: bundle
-                ? `${sign}${components} components in ${bundle}`
-                : `${sign}${components} components`,
+                ? i18n.t("extensions.componentsDeltaInBundle", {
+                    sign,
+                    count: components,
+                    bundle,
+                  })
+                : i18n.t("extensions.componentsDelta", {
+                    sign,
+                    count: components,
+                  }),
             });
           } else if (
             event.type === "extension_error" ||
@@ -225,8 +242,11 @@ export function useExtensionEvents(): UseExtensionEventsReturn {
               message = event.payload.message;
             }
             alert.setErrorData({
-              title: "Extension error",
-              list: [message ?? `${event.type}: check server logs for details`],
+              title: i18n.t("extensions.error"),
+              list: [
+                message ??
+                  i18n.t("extensions.checkServerLogs", { type: event.type }),
+              ],
             });
           }
           // flow_migrated: no-op for Phase 1; future tickets wire to canvas

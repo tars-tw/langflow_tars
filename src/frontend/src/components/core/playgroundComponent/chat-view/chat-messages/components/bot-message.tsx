@@ -138,7 +138,7 @@ export const BotMessage = memo(
 
     const editedFlag = chat.edit ? (
       <div className="mt-2 text-xs text-muted-foreground text-right">
-        (Edited)
+        {t("common.edited")}
       </div>
     ) : null;
 

@@ -262,7 +262,7 @@ const ListSelectionComponent = ({
             ))
           ) : (
             <div className="py-3 text-center text-muted-foreground">
-              No items match your search
+              {t("listSelection.noMatches")}
             </div>
           )}
         </div>

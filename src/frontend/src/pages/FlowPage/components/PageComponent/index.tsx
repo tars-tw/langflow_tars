@@ -325,15 +325,13 @@ export default function Page({
                 }[e.type] || "changed";
               counts[key] = (counts[key] || 0) + 1;
             }
-            const parts = Object.entries(counts).map(([action, count]) => {
-              const isConnection =
-                action === "connected" || action === "disconnected";
-              const base = isConnection ? "connection" : "component";
-              const noun = count === 1 ? base : `${base}s`;
-              return `${action} ${count} ${noun}`;
-            });
+            const parts = Object.entries(counts).map(([action, count]) =>
+              t(`assistant.agentAction.${action}`, { count }),
+            );
             setSuccessData({
-              title: `Agent ${parts.join(", ")}`,
+              title: t("assistant.agentSummary", {
+                parts: parts.join(t("common.listSeparator")),
+              }),
             });
           }
         })

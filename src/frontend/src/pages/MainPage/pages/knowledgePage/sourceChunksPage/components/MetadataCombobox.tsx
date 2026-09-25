@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +40,7 @@ export const MetadataCombobox = ({
   onEnter,
   "aria-label": ariaLabel,
 }: MetadataComboboxProps) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -153,7 +155,7 @@ export const MetadataCombobox = ({
                     name="Plus"
                     className="mr-2 h-4 w-4"
                   />
-                  Use “{trimmedQuery}”
+                  {t("knowledge.useTypedValue", { value: trimmedQuery })}
                 </CommandItem>
               </CommandGroup>
             )}
