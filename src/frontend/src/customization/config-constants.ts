@@ -1,7 +1,8 @@
 import { normalizeBasePath } from "./base-path";
 
 /** Product name shown throughout the UI (page titles, headings, messages). */
-export const APP_NAME = "Tars Workflow";
+export const APP_NAME = "TARS Workflow";
+
 // The backend sets the base element before any frontend modules execute.
 const documentBase =
   typeof document === "undefined"
