@@ -1,5 +1,5 @@
 /** Product name shown throughout the UI (page titles, headings, messages). */
-export const APP_NAME = "Tars Workflow";
+export const APP_NAME = "TARS Workflow";
 export const BASENAME = "";
 export const PORT = 3000;
 export const PROXY_TARGET = "http://localhost:7860";
