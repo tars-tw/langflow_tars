@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 import { ProtectedRoute } from "./components/authorization/authGuard";
 import { ProtectedLoginRoute } from "./components/authorization/authLoginGuard";
-import { AuthSettingsGuard } from "./components/authorization/authSettingsGuard";
 import { PlaygroundAuthGate } from "./components/authorization/playgroundAuthGate";
 import ContextWrapper from "./contexts";
 import CustomDashboardWrapperPage from "./customization/components/custom-DashboardWrapperPage";
@@ -158,14 +157,7 @@ const router = createBrowserRouter(
                   <Route path="mcp-client" element={<McpClientPage />} />
 
                   <Route path="api-keys" element={<ApiKeysPage />} />
-                  <Route
-                    path="general/:scrollId?"
-                    element={
-                      <AuthSettingsGuard>
-                        <GeneralPage />
-                      </AuthSettingsGuard>
-                    }
-                  />
+                  <Route path="general/:scrollId?" element={<GeneralPage />} />
                   <Route path="shortcuts" element={<ShortcutsPage />} />
                   <Route path="messages" element={<MessagesPage />} />
                   {CustomRoutesStore()}
