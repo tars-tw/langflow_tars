@@ -139,29 +139,24 @@ describe("GeneralPage accessibility", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders_the_language_password_and_profile_picture_sections", () => {
+  it("renders_the_language_and_password_sections", () => {
     renderGeneralPage();
 
     expect(
       screen.getByRole("combobox", { name: "Select language" }),
     ).toBeInTheDocument();
-    // One "Save" submit button per section (password + profile picture).
-    expect(screen.getAllByRole("button", { name: /save/i })).toHaveLength(2);
+    // Only the password section has a "Save" submit button.
+    expect(screen.getAllByRole("button", { name: /save/i })).toHaveLength(1);
+    expect(screen.getByRole("form", { name: "Password" })).toBeInTheDocument();
   });
 
-  it("gives_the_password_and_profile_picture_forms_distinct_accessible_names", () => {
-    // Regression lock: axe-core only treats a <form> as a "form" landmark
-    // once it has an accessible name, so an unlabeled duplicate never shows
-    // up as an axe violation (verified: landmark-unique is "inapplicable"
-    // for unlabeled forms, not passing). The IBM ACE page scanner is
-    // stricter and flags any duplicate unlabeled forms, which is what
-    // caught this on the real /settings/general page.
+  it("does_not_render_the_profile_picture_section", () => {
+    // ENABLE_PROFILE_ICONS is off: the avatar chooser is not offered.
     renderGeneralPage();
 
-    expect(screen.getByRole("form", { name: "Password" })).toBeInTheDocument();
     expect(
-      screen.getByRole("form", { name: "Profile Picture" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("form", { name: "Profile Picture" }),
+    ).not.toBeInTheDocument();
   });
 
   it("should_have_no_axe_violations_with_the_language_popover_open", async () => {

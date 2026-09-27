@@ -3,32 +3,22 @@ import { Outlet, type To, useLocation } from "react-router-dom";
 import SideBarButtonsComponent from "@/components/core/sidebarComponent";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CustomStoreSidebar } from "@/customization/components/custom-store-sidebar";
-import {
-  ENABLE_DATASTAX_LANGFLOW,
-  ENABLE_PROFILE_ICONS,
-} from "@/customization/feature-flags";
+import { ENABLE_DATASTAX_LANGFLOW } from "@/customization/feature-flags";
 import { useDocumentTitle } from "@/hooks/use-document-title";
-import useAuthStore from "@/stores/authStore";
-import { useStoreStore } from "@/stores/storeStore";
 import ForwardedIconComponent from "../../components/common/genericIconComponent";
 import PageLayout from "../../components/common/pageLayout";
 export default function SettingsPage(): JSX.Element {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const autoLogin = useAuthStore((state) => state.autoLogin);
-  const hasStore = useStoreStore((state) => state.hasStore);
-
-  // Hides the General settings if there is nothing to show
-  const showGeneralSettings = ENABLE_PROFILE_ICONS || hasStore || !autoLogin;
-
   const sidebarNavItems: {
     href?: string;
     title: string;
     icon: React.ReactNode;
   }[] = [];
 
-  if (showGeneralSettings) {
-    sidebarNavItems.push({
+  // General always hosts the language selector, so it is always listed.
+  sidebarNavItems.push(
+    {
       title: t("settings.nav.general"),
       href: "/settings/general",
       icon: (
@@ -37,10 +27,7 @@ export default function SettingsPage(): JSX.Element {
           className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
         />
       ),
-    });
-  }
-
-  sidebarNavItems.push(
+    },
     {
       title: t("settings.nav.mcpServers"),
       href: "/settings/mcp-servers",

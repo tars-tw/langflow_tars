@@ -93,7 +93,9 @@ export const GeneralPage = () => {
     }
   };
 
-  const handleGetProfilePictures = useGetProfilePicturesQuery();
+  const handleGetProfilePictures = useGetProfilePicturesQuery({
+    enabled: ENABLE_PROFILE_ICONS,
+  });
 
   const handlePatchProfilePicture = (profile_picture) => {
     if (profile_picture !== "") {
