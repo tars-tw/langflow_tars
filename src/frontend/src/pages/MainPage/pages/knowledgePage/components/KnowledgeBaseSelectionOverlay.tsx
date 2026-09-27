@@ -59,7 +59,6 @@ const KnowledgeBaseSelectionOverlay = ({
   };
 
   const isVisible = selectedFiles.length > 0;
-  const pluralSuffix = quantitySelected > 1 ? "s" : "";
 
   return (
     <div
@@ -80,7 +79,9 @@ const KnowledgeBaseSelectionOverlay = ({
         <div className="flex items-center gap-2">
           <DeleteConfirmationModal
             onConfirm={handleBulkDelete}
-            description={`knowledge base${pluralSuffix}`}
+            description={t("knowledge.deleteDescription", {
+              count: quantitySelected,
+            })}
           >
             <Button
               variant="destructive"

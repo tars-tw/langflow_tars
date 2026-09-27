@@ -1,8 +1,7 @@
-//import LangflowLogoColor from "@/assets/LangflowLogocolor.svg?react";
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import ThemeButtons from "@/components/core/appHeaderComponent/components/ThemeButtons";
 import { useDeleteSession } from "@/controllers/API/queries/messages/use-delete-sessions";
 import { useGetMessageHistory } from "@/controllers/API/queries/messages/use-get-message-history";
@@ -14,7 +13,6 @@ import { LangflowButtonRedirectTarget } from "@/customization/utils/urls";
 import { isAuthenticatedPlayground } from "@/modals/IOModal/helpers/playground-auth";
 import { useUtilityStore } from "@/stores/utilityStore";
 import { swatchColors } from "@/utils/styleUtils";
-import LangflowLogoColor from "../../assets/LangflowLogoColor.svg?react";
 import IconComponent from "../../components/common/genericIconComponent";
 import ShadTooltip from "../../components/common/shadTooltipComponent";
 import { Button } from "../../components/ui/button";
@@ -346,7 +344,7 @@ export default function IOModal({
       setOpen={setOpen}
       disable={disable}
       type={isPlayground ? "full-screen" : undefined}
-      ariaLabel="Playground"
+      ariaLabel={t("misc.playground")}
       onSubmit={async () => await sendMessage({ repeat: 1 })}
       size="x-large"
       className="!rounded-[12px] p-0"
@@ -439,7 +437,10 @@ export default function IOModal({
                       variant="primary"
                       className="w-full !rounded-xl shadow-lg"
                     >
-                      <LangflowLogoColor aria-hidden="true" />
+                      <TarsLogo
+                        className="h-[18px] w-[18px]"
+                        aria-hidden="true"
+                      />
                       <div className="text-sm">
                         {t("modal.io.builtWithLangflow")}
                       </div>
@@ -461,7 +462,7 @@ export default function IOModal({
                     onClick={LangflowButtonClick}
                     aria-label={t("modal.io.builtWithLangflow")}
                   >
-                    <LangflowLogoColor
+                    <TarsLogo
                       className="h-[18px] w-[18px] scale-150"
                       aria-hidden="true"
                     />

@@ -213,6 +213,7 @@ const CustomInputPopover = ({
     | undefined,
   nodeId = undefined as string | undefined,
 }) => {
+  const { t } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
   const memoizedOptions = useMemo(() => new Set<string>(options), [options]);
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -410,7 +411,7 @@ const CustomInputPopover = ({
         align="start"
       >
         <Command
-          label={optionsPlaceholder || "Search options"}
+          label={optionsPlaceholder || t("input.searchOptionsLabel")}
           filter={(value, search) => {
             if (
               value.toLowerCase().includes(search.toLowerCase()) ||

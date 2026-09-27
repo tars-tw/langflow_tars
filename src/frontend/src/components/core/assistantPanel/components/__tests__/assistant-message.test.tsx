@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { APP_NAME } from "@/customization/config-constants";
 import type { AssistantMessage } from "../../assistant-panel.types";
 import { AssistantMessageItem } from "../assistant-message";
 
@@ -26,6 +27,7 @@ jest
   });
 
 jest.mock("@/customization/config-constants", () => ({
+  ...jest.requireActual("@/customization/config-constants"),
   BASE_URL_API: "http://localhost:7860/api/v1/",
 }));
 
@@ -238,8 +240,8 @@ describe("AssistantMessageItem", () => {
 
       render(<AssistantMessageItem message={message} />);
 
-      expect(screen.getByText("Langflow Assistant")).toBeInTheDocument();
-      expect(screen.getByAltText("Langflow Assistant")).toBeInTheDocument();
+      expect(screen.getByText(`${APP_NAME} Assistant`)).toBeInTheDocument();
+      expect(screen.getByAltText(`${APP_NAME} Assistant`)).toBeInTheDocument();
     });
   });
 

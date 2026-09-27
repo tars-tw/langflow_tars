@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import langflowAssistantIcon from "@/assets/langflow_assistant.svg";
 import MessageMetadata from "@/components/common/messageMetadataComponent";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import { CustomProfileIcon } from "@/customization/components/custom-profile-icon";
 import { cn } from "@/utils/utils";
 import type { AssistantMessage } from "../assistant-panel.types";
@@ -177,8 +177,7 @@ export function AssistantMessageItem({
           <CustomProfileIcon className="h-7 w-7 shrink-0 rounded-full" />
         ) : (
           <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg">
-            <img
-              src={langflowAssistantIcon}
+            <TarsLogo
               alt={t("assistant.title")}
               className="h-full w-full object-cover"
             />

@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Markdown from "react-markdown";
 import rehypeMathjax from "rehype-mathjax/browser";
 import remarkGfm from "remark-gfm";
@@ -139,6 +140,7 @@ function TabButton({
  *     falls through to FormattedOutput directly under the eyebrow —
  *     no tabs, just the body. */
 export function ToolOutputDisplay({ output }: { output: JSONValue }) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("result");
 
   if (!isToolMessageEnvelope(output)) {
@@ -182,13 +184,13 @@ export function ToolOutputDisplay({ output }: { output: JSONValue }) {
     <ToolSection eyebrow="Output">
       <div role="tablist" className="flex gap-4 border-b border-border">
         <TabButton selected={tab === "result"} onClick={() => setTab("result")}>
-          Result
+          {t("chat.toolResult")}
         </TabButton>
         <TabButton
           selected={tab === "metadata"}
           onClick={() => setTab("metadata")}
         >
-          Metadata
+          {t("knowledge.metadataLabel")}
         </TabButton>
       </div>
       {/* Stable height envelope: min-h holds the card chrome steady when

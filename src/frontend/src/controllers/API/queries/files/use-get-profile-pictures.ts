@@ -11,7 +11,7 @@ export interface ProfilePicturesQueryResponse extends Record<string, string[]> {
 export const useGetProfilePicturesQuery: useQueryFunctionType<
   undefined,
   ProfilePicturesQueryResponse
-> = () => {
+> = (options) => {
   const { query } = UseRequestProcessor();
 
   const getProfilePicturesFn =
@@ -43,6 +43,7 @@ export const useGetProfilePicturesQuery: useQueryFunctionType<
 
   const queryResult = query(["useGetProfilePicturesQuery"], responseFn, {
     placeholderData: keepPreviousData,
+    ...options,
   });
 
   return queryResult;

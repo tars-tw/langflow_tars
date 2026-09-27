@@ -1,19 +1,20 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { APP_NAME } from "@/customization/config-constants";
 import { axe } from "@/utils/a11y-test";
 import IOModal from "../playground-modal";
 
 // This suite only asserts the accessible-name fixes on IOModal's own icon
-// buttons (the sidebar toggle and the two "Built with Langflow" variants).
+// buttons (the sidebar toggle and the two "Built with <APP_NAME>" variants).
 // Everything else on the page (chat panel, sidebar session list, output
 // panel) is mocked out so the suite doesn't have to model the full
 // store/query surface those subtrees depend on.
 
-jest.mock("@/assets/LangflowLogoColor.svg?react", () => ({
+jest.mock("@/components/common/tarsLogoComponent", () => ({
   __esModule: true,
   // Forward props (aria-hidden in particular) so the fix is actually testable.
-  default: (props: React.SVGProps<SVGSVGElement>) => (
-    <svg data-testid="langflow-logo-color" {...props} />
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <img data-testid="app-logo" alt="" {...props} />
   ),
 }));
 
@@ -224,13 +225,13 @@ describe("IOModal (playground) accessibility", () => {
     ).toBeInTheDocument();
   });
 
-  it("hides the sidebar-open 'Built with Langflow' logo from assistive tech", () => {
+  it("hides the sidebar-open 'Built with <APP_NAME>' logo from assistive tech", () => {
     renderPlayground();
 
     // Sidebar-open variant: the button has a visible text label, but its
-    // decorative logo SVG must still be aria-hidden so AT doesn't announce
-    // an unnamed <svg> inside a named button.
-    const openVariantLogo = screen.getAllByTestId("langflow-logo-color")[0];
+    // decorative logo must still be aria-hidden so AT doesn't announce
+    // it inside a named button.
+    const openVariantLogo = screen.getAllByTestId("app-logo")[0];
     expect(openVariantLogo).toHaveAttribute("aria-hidden", "true");
   });
 
@@ -247,19 +248,17 @@ describe("IOModal (playground) accessibility", () => {
     ).toBeInTheDocument();
   });
 
-  it("names the collapsed-sidebar 'Built with Langflow' button and hides its icon", () => {
+  it("names the collapsed-sidebar 'Built with <APP_NAME>' button and hides its icon", () => {
     renderPlayground();
 
     fireEvent.click(screen.getByRole("button", { name: "Hide sidebar" }));
 
     const collapsedButton = screen.getByRole("button", {
-      name: "Built with Langflow",
+      name: `Built with ${APP_NAME}`,
     });
     expect(collapsedButton).toBeInTheDocument();
 
-    const icon = collapsedButton.querySelector(
-      '[data-testid="langflow-logo-color"]',
-    );
+    const icon = collapsedButton.querySelector('[data-testid="app-logo"]');
     expect(icon).toHaveAttribute("aria-hidden", "true");
   });
 

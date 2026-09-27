@@ -71,7 +71,7 @@ export function createFlowTracesColumns({
         if (params.data?.status === "awaiting_human") {
           return (
             <span className="italic text-accent-indigo-foreground">
-              Awaiting human action
+              {i18n.t("trace.awaitingHumanAction")}
             </span>
           );
         }

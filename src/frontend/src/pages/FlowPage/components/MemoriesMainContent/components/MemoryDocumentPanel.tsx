@@ -51,7 +51,7 @@ export function MemoryDocumentPanel({
                   <span className="font-medium text-foreground">
                     {t("memory.sessionLabel")}
                   </span>{" "}
-                  {selectedDocument.session_id || "(no session)"}
+                  {selectedDocument.session_id || t("memory.noSession")}
                 </span>
                 <span>
                   <span className="font-medium text-foreground">

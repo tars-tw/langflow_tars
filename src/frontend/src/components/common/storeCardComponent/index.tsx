@@ -1,5 +1,9 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { type FC, useState } from "react";
+import {
+  Trans as TransComponent,
+  type TransProps,
+  useTranslation,
+} from "react-i18next";
 import { usePostLikeComponent } from "@/controllers/API/queries/store";
 import { getComponent } from "../../../controllers/API";
 import useAlertStore from "../../../stores/alertStore";
@@ -23,6 +27,8 @@ import ShadTooltip from "../shadTooltipComponent";
 import useDataEffect from "./hooks/use-data-effect";
 import useInstallComponent from "./hooks/use-handle-install";
 import { convertTestName } from "./utils/convert-test-name";
+
+const Trans = TransComponent as unknown as FC<TransProps<string>>;
 
 export default function StoreCardComponent({
   data,
@@ -173,7 +179,11 @@ export default function StoreCardComponent({
             <div className="flex gap-2">
               {data.user_created && data.user_created.username && (
                 <span className="text-sm text-primary">
-                  by <b>{data.user_created.username}</b>
+                  <Trans
+                    i18nKey="store.byUser"
+                    values={{ username: data.user_created.username }}
+                    components={{ 1: <b /> }}
+                  />
                   {data.last_tested_version && (
                     <>
                       {" "}

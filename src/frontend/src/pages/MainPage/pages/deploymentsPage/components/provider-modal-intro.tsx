@@ -21,7 +21,7 @@ export default function ProviderModalIntro({
         />
         <span className="text-sm font-medium">watsonx Orchestrate</span>
         <Badge variant="purpleStatic" size="xq" className="shrink-0">
-          Beta
+          {t("sidebar.betaLabel")}
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground">

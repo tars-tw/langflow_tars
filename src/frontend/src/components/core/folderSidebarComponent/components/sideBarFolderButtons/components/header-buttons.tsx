@@ -4,6 +4,7 @@ import IconComponent from "@/components/common/genericIconComponent";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useUpdateUser } from "@/controllers/API/queries/auth";
 import CustomGetStartedProgress from "@/customization/components/custom-get-started-progress";
+import { ENABLE_GET_STARTED_PROGRESS } from "@/customization/feature-flags";
 import useAuthStore from "@/stores/authStore";
 import { useUtilityStore } from "@/stores/utilityStore";
 import { AddFolderButton } from "./add-folder-button";
@@ -64,20 +65,23 @@ export const HeaderButtons = ({
 
   return (
     <>
-      {!hideGettingStartedProgress && !isDismissedDialog && userData && (
-        <>
-          <CustomGetStartedProgress
-            userData={userData!}
-            isGithubStarred={isGithubStarred ?? false}
-            isDiscordJoined={isDiscordJoined ?? false}
-            handleDismissDialog={handleDismissDialog}
-          />
+      {ENABLE_GET_STARTED_PROGRESS &&
+        !hideGettingStartedProgress &&
+        !isDismissedDialog &&
+        userData && (
+          <>
+            <CustomGetStartedProgress
+              userData={userData!}
+              isGithubStarred={isGithubStarred ?? false}
+              isDiscordJoined={isDiscordJoined ?? false}
+              handleDismissDialog={handleDismissDialog}
+            />
 
-          <div className="-mx-4 mt-1 w-[280px]">
-            <hr className="border-t-1 w-full" />
-          </div>
-        </>
-      )}
+            <div className="-mx-4 mt-1 w-[280px]">
+              <hr className="border-t-1 w-full" />
+            </div>
+          </>
+        )}
 
       <div className="flex shrink-0 items-center justify-between gap-2 pt-2">
         <SidebarTrigger className="lg:hidden">

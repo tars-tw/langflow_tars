@@ -13,7 +13,10 @@ import { useGetTagsQuery } from "@/controllers/API/queries/store";
 import { useGetGlobalVariables } from "@/controllers/API/queries/variables";
 import { useGetVersionQuery } from "@/controllers/API/queries/version";
 import { CustomLoadingPage } from "@/customization/components/custom-loading-page";
-import { ENABLE_LANGFLOW_STORE } from "@/customization/feature-flags";
+import {
+  ENABLE_LANGFLOW_STORE,
+  ENABLE_SOCIAL_LINKS,
+} from "@/customization/feature-flags";
 import { useCustomPrimaryLoading } from "@/customization/hooks/use-custom-primary-loading";
 import useAuthStore from "@/stores/authStore";
 import { useDarkStore } from "@/stores/darkStore";
@@ -81,7 +84,7 @@ export function AppInitPage() {
   }, [sessionData]);
 
   useEffect(() => {
-    if (isFetched) {
+    if (isFetched && ENABLE_SOCIAL_LINKS) {
       refreshStars();
       refreshDiscordCount();
     }

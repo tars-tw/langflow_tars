@@ -158,7 +158,7 @@ export default function FileRendererComponent({
               )}
               {file.progress !== undefined && file.progress === -1 ? (
                 <span className="text-mmd text-primary">
-                  Upload failed,{" "}
+                  {t("files.uploadFailed")}{" "}
                   <span
                     className="cursor-pointer text-accent-pink-foreground underline"
                     onClick={(e) => {
@@ -168,7 +168,7 @@ export default function FileRendererComponent({
                       }
                     }}
                   >
-                    try again?
+                    {t("files.tryAgain")}
                   </span>
                 </span>
               ) : (

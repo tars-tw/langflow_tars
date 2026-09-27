@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { convertTestName } from "@/components/common/storeCardComponent/utils/convert-test-name";
@@ -24,6 +25,7 @@ export default function TemplateGetStartedCardComponent({
   loading,
   onFlowCreating,
 }: TemplateGetStartedCardComponentProps) {
+  const { t } = useTranslation();
   const addFlow = useAddFlow();
   const navigate = useCustomNavigate();
   const dismissWelcomeForNavigation = useFlowBuilderWelcomeStore(
@@ -78,12 +80,12 @@ export default function TemplateGetStartedCardComponent({
       <div className="absolute inset-2 h-[calc(100%-16px)] w-[calc(100%-16px)] overflow-hidden rounded-2xl">
         <img
           src={bgImage}
-          alt={`${flow.name} Spiral`}
+          alt={t("templatesModal.spiralAlt", { name: flow.name })}
           className="hidden h-full w-full object-cover transition-all duration-300 group-hover:scale-[102%] group-focus-visible:scale-[102%] lg:block"
         />
         <img
           src={bgHorizontalImage}
-          alt={`${flow.name} Horizontal`}
+          alt={t("templatesModal.horizontalAlt", { name: flow.name })}
           className="block h-full w-full object-cover transition-all duration-300 group-hover:scale-[102%] group-focus-visible:scale-[102%] lg:hidden"
         />
       </div>

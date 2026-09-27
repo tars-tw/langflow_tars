@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AlertDropdown from "@/alerts/alertDropDown";
-import LangflowLogo from "@/assets/LangflowLogo.svg?react";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ModelProviderCount from "@/components/common/modelProviderCountComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import CustomAccountMenu from "@/customization/components/custom-AccountMenu";
-import CustomLangflowCounts from "@/customization/components/custom-langflow-counts";
 import { CustomOrgSelector } from "@/customization/components/custom-org-selector";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
 import useTheme from "@/customization/hooks/use-custom-theme";
@@ -66,7 +65,7 @@ export default function AppHeader(): JSX.Element {
           data-testid="icon-ChevronLeft"
           aria-label={t("header.home")}
         >
-          <LangflowLogo className="h-5 w-5" aria-hidden="true" />
+          <TarsLogo className="h-6 w-6" aria-hidden="true" />
         </Button>
         <CustomOrgSelector />
       </div>
@@ -82,9 +81,6 @@ export default function AppHeader(): JSX.Element {
         data-testid="header_right_section_wrapper"
       >
         {false && <ModelProviderCount />}
-        <div className="hidden pr-2 whitespace-nowrap lg:inline-flex lg:items-center">
-          <CustomLangflowCounts />
-        </div>
         <AlertDropdown
           notificationRef={notificationContentRef}
           onClose={() => setActiveState(null)}

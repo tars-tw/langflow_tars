@@ -1,5 +1,7 @@
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
+import { DEFAULT_LANGUAGE } from "./constants/languages";
+import { APP_NAME } from "./customization/config-constants";
 import en from "./locales/en.json";
 
 const SUPPORTED_LANGUAGES = [
@@ -13,7 +15,7 @@ const SUPPORTED_LANGUAGES = [
 ] as const;
 
 const normalizeLanguage = (lang?: string | null): string => {
-  if (!lang) return "en";
+  if (!lang) return DEFAULT_LANGUAGE;
 
   if (
     SUPPORTED_LANGUAGES.includes(lang as (typeof SUPPORTED_LANGUAGES)[number])
@@ -37,11 +39,11 @@ const normalizeLanguage = (lang?: string | null): string => {
     return baseLang;
   }
 
-  return "en";
+  return DEFAULT_LANGUAGE;
 };
 
 export const detectedLang = normalizeLanguage(
-  localStorage.getItem("languagePreference") || "en",
+  localStorage.getItem("languagePreference") || DEFAULT_LANGUAGE,
 );
 
 const i18n = i18next.createInstance();
@@ -60,6 +62,7 @@ i18n.use(initReactI18next).init({
   returnEmptyString: false,
   interpolation: {
     escapeValue: false,
+    defaultVariables: { appName: APP_NAME },
   },
 });
 console.info = _consoleInfo;

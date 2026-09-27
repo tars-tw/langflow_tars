@@ -1,7 +1,8 @@
+import { APP_NAME } from "@/customization/config-constants";
 import i18n from "@/i18n";
 import type { AssistantSuggestion } from "./assistant-panel.types";
 
-export const ASSISTANT_TITLE = "Langflow Assistant";
+export const ASSISTANT_TITLE = `${APP_NAME} Assistant`;
 
 export const ASSISTANT_SESSION_STORAGE_KEY_PREFIX =
   "langflow-assistant-session-";
@@ -39,6 +40,6 @@ export const ASSISTANT_SUGGESTIONS: AssistantSuggestion[] = [
   {
     id: "answer-questions",
     icon: "Sparkles",
-    text: "Answer questions about Langflow",
+    text: `Answer questions about ${APP_NAME}`,
   },
 ];
