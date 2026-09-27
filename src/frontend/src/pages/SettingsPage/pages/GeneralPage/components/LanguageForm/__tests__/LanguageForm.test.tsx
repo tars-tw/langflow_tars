@@ -123,16 +123,24 @@ describe("LanguageFormComponent", () => {
     });
   });
 
-  it("shows recommended label for English option", () => {
+  it("lists Traditional Chinese first", () => {
     render(<LanguageFormComponent />);
-    const enOption = screen.getByRole("option", { name: /English/i });
-    expect(enOption.textContent).toContain("settings.languageRecommended");
+    const options = screen.getByRole("combobox").querySelectorAll("option");
+    expect(options[0]).toHaveValue("zh-Hans");
   });
 
-  it("does not show recommended label for non-English options", () => {
+  it("shows recommended label for Traditional Chinese option", () => {
     render(<LanguageFormComponent />);
-    const frOption = screen.getByRole("option", { name: /Français/i });
-    expect(frOption.textContent).not.toContain("settings.languageRecommended");
+    const zhOption = screen.getByRole("option", { name: /繁體中文/ });
+    expect(zhOption.textContent).toContain("settings.languageRecommended");
+  });
+
+  it("does not show recommended label for other options", () => {
+    render(<LanguageFormComponent />);
+    ["English", "Français"].forEach((label) => {
+      const option = screen.getByRole("option", { name: new RegExp(label) });
+      expect(option.textContent).not.toContain("settings.languageRecommended");
+    });
   });
 
   it("calls loadLanguage before changeLanguage when switching languages", async () => {
