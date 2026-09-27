@@ -228,7 +228,8 @@ export default function CreateMemoryModal({
                 </div>
                 {selectedPreprocessingModel[0]?.provider && (
                   <div className="text-xs text-muted-foreground">
-                    Provider: {selectedPreprocessingModel[0].provider}
+                    {t("memory.providerLabel")}{" "}
+                    {selectedPreprocessingModel[0].provider}
                   </div>
                 )}
               </div>
@@ -261,7 +262,7 @@ export default function CreateMemoryModal({
                     <button
                       type="button"
                       tabIndex={0}
-                      aria-label="Preprocessing instructions help"
+                      aria-label={t("memory.preprocessingInstructionsHelp")}
                       className="cursor-help rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     >
                       <ForwardedIconComponent

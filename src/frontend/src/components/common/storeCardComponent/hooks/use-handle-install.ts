@@ -1,4 +1,5 @@
 import useAddFlow from "@/hooks/flows/use-add-flow";
+import i18n from "@/i18n";
 import { getComponent } from "../../../../controllers/API";
 import type { storeComponent } from "../../../../types/store";
 import cloneFlowWithParent from "../../../../utils/storeUtils";
@@ -25,14 +26,14 @@ const useInstallComponent = (
         addFlow({ flow: newFlow })
           .then((id) => {
             setSuccessData({
-              title: `${name} Installed Successfully.`,
+              title: i18n.t("store.installedSuccessfully", { name }),
             });
             setLoading(false);
           })
           .catch((error) => {
             setLoading(false);
             setErrorData({
-              title: `Error installing the ${name}`,
+              title: i18n.t("store.installError", { name }),
               list: [error.response.data.detail],
             });
           });
@@ -40,7 +41,7 @@ const useInstallComponent = (
       .catch((err) => {
         setLoading(false);
         setErrorData({
-          title: `Error installing the ${name}`,
+          title: i18n.t("store.installError", { name }),
           list: [err.response.data.detail],
         });
         setDownloadsCount(temp);

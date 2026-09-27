@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { CitationContent } from "@/types/chat";
 import ForwardedIconComponent from "../../common/genericIconComponent";
 import { safeUrl } from "./url";
@@ -64,11 +65,12 @@ function SourceCard({ citation }: { citation: CitationContent }) {
 /** Horizontally-scrolling row of source cards. Used both for single
  * citations and for coalesced groups of consecutive citations. */
 export function SourcesStrip({ citations }: { citations: CitationContent[] }) {
+  const { t } = useTranslation();
   if (citations.length === 0) return null;
   return (
     <div className="flex flex-col gap-1.5">
       <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {citations.length > 1 ? "Sources" : "Source"}
+        {t("chat.sources", { count: citations.length })}
       </div>
       <div className="flex flex-row gap-2 overflow-x-auto pb-1">
         {citations.map((citation, idx) => (

@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { loadLanguage } from "@/i18n";
-import { SUPPORTED_LANGUAGES } from "@/constants/languages";
+import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "@/constants/languages";
 import { useTypesStore } from "@/stores/typesStore";
 import {
   Card,
@@ -46,7 +46,7 @@ const LanguageFormComponent = () => {
             {SUPPORTED_LANGUAGES.map((lang) => (
               <SelectItem key={lang.code} value={lang.code}>
                 {lang.label}
-                {lang.code === "en"
+                {lang.code === DEFAULT_LANGUAGE
                   ? ` (${t("settings.languageRecommended")})`
                   : ""}
               </SelectItem>

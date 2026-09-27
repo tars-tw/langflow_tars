@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react";
 import { Fragment, type ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Markdown from "react-markdown";
 import rehypeMathjax from "rehype-mathjax/browser";
 import remarkGfm from "remark-gfm";
@@ -43,6 +44,7 @@ export default function ContentDisplay({
     decision: HumanInputDecision,
   ) => void;
 }) {
+  const { t } = useTranslation();
   // Reasoning blocks surface their own duration inline via ReasoningDisplay's
   // "Thought for Xs" label, so skip the absolute top-right DurationDisplay
   // there to avoid rendering the same duration twice.
@@ -145,8 +147,16 @@ export default function ContentDisplay({
     case "error":
       contentData = (
         <div className="text-destructive">
-          {content.reason && <div>Reason: {content.reason}</div>}
-          {content.solution && <div>Solution: {content.solution}</div>}
+          {content.reason && (
+            <div>
+              {t("chat.reasonLabel")} {content.reason}
+            </div>
+          )}
+          {content.solution && (
+            <div>
+              {t("chat.solutionLabel")} {content.solution}
+            </div>
+          )}
           {content.traceback && (
             <SimplifiedCodeTabComponent
               language="text"
@@ -267,9 +277,14 @@ export default function ContentDisplay({
           )}
           {hasTokens && (
             <span>
-              Tokens: {hasInput ? `${content.input_tokens} in` : ""}
+              {t("chat.tokensLabel")}{" "}
+              {hasInput
+                ? t("chat.tokensIn", { count: content.input_tokens })
+                : ""}
               {hasInput && hasOutput ? " / " : ""}
-              {hasOutput ? `${content.output_tokens} out` : ""}
+              {hasOutput
+                ? t("chat.tokensOut", { count: content.output_tokens })
+                : ""}
             </span>
           )}
         </div>
@@ -370,6 +385,7 @@ function ReasoningDisplay({
   text: string;
   duration?: number;
 }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const isStreaming = duration === undefined;
 
@@ -381,7 +397,7 @@ function ReasoningDisplay({
           className="h-3 w-3"
           aria-hidden
         />
-        <span className="animate-pulse">Thinking…</span>
+        <span className="animate-pulse">{t("chat.thinking")}</span>
       </div>
     );
   }
@@ -398,7 +414,9 @@ function ReasoningDisplay({
           className="h-3 w-3"
           aria-hidden
         />
-        <span>Thought for {formatSeconds(duration)}</span>
+        <span>
+          {t("chat.thoughtFor", { duration: formatSeconds(duration) })}
+        </span>
         <ChevronDown
           className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180" : ""}`}
         />

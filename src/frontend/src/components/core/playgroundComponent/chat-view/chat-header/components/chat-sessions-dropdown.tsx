@@ -75,7 +75,9 @@ export function ChatSessionsDropdown({
                       setOpen(false);
                     }}
                   >
-                    {session === currentFlowId ? "Default Session" : session}
+                    {session === currentFlowId
+                      ? t("chat.defaultSession")
+                      : session}
                   </DropdownMenuItem>
                 ))}
                 <ShowMoreSessions pagination={sessionsPagination} asMenuItem />
@@ -92,7 +94,7 @@ export function ChatSessionsDropdown({
                   }}
                 >
                   <ForwardedIconComponent name="Plus" className="h-4 w-4" />
-                  New Session
+                  {t("chat.newSession")}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </div>
@@ -107,7 +109,7 @@ export function ChatSessionsDropdown({
               }}
             >
               <ForwardedIconComponent name="Plus" className="h-4 w-4" />
-              New Session
+              {t("chat.newSession")}
             </DropdownMenuItem>
           </div>
         )}

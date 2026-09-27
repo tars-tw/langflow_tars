@@ -91,7 +91,7 @@ const IngestionRunsSection = ({ kbName }: IngestionRunsSectionProps) => {
         <h4 className="text-sm font-medium">{t("knowledge.ingestionRuns")}</h4>
         {data?.total ? (
           <span className="text-xs text-muted-foreground">
-            {data.total} total
+            {t("knowledge.totalCount", { count: data.total })}
           </span>
         ) : null}
       </div>
@@ -103,13 +103,12 @@ const IngestionRunsSection = ({ kbName }: IngestionRunsSectionProps) => {
       )}
       {isError && (
         <div className="text-sm text-destructive">
-          Unable to load ingestion runs.
+          {t("knowledge.runsLoadError")}
         </div>
       )}
       {!isLoading && !isError && data?.runs.length === 0 && (
         <div className="text-sm text-muted-foreground">
-          No ingestion runs yet. Upload a file or ingest a folder to see history
-          here.
+          {t("knowledge.runsEmpty")}
         </div>
       )}
 
@@ -167,7 +166,9 @@ const IngestionRunsSection = ({ kbName }: IngestionRunsSectionProps) => {
                   </span>
                 )}
                 <span>·</span>
-                <span>{run.chunks_created} chunks</span>
+                <span>
+                  {t("knowledge.chunksCount", { count: run.chunks_created })}
+                </span>
                 {run.total_bytes > 0 && (
                   <>
                     <span>·</span>

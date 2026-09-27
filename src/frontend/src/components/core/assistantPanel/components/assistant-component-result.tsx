@@ -178,7 +178,7 @@ export function AssistantComponentResult({
             className={GHOST_PRIMARY_BUTTON}
             onClick={handleApprove}
           >
-            <span>Approve</span>
+            <span>{t("assistant.approve")}</span>
             <Check className="h-3.5 w-3.5" />
           </button>
         )}
