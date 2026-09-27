@@ -1,7 +1,7 @@
 export const ENABLE_DARK_MODE = true;
 export const ENABLE_API = true;
 export const ENABLE_LANGFLOW_STORE = false;
-export const ENABLE_PROFILE_ICONS = true;
+export const ENABLE_PROFILE_ICONS = false;
 export const ENABLE_SOCIAL_LINKS = false;
 // Sidebar "Get started" onboarding panel (GitHub star / Discord / first flow).
 export const ENABLE_GET_STARTED_PROGRESS = false;

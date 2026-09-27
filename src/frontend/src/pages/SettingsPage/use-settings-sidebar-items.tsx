@@ -1,11 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { CustomStoreSidebar } from "@/customization/components/custom-store-sidebar";
-import {
-  ENABLE_DATASTAX_LANGFLOW,
-  ENABLE_PROFILE_ICONS,
-} from "@/customization/feature-flags";
+import { ENABLE_DATASTAX_LANGFLOW } from "@/customization/feature-flags";
 import useAuthStore from "@/stores/authStore";
-import { useStoreStore } from "@/stores/storeStore";
 import { useUtilityStore } from "@/stores/utilityStore";
 import ForwardedIconComponent from "../../components/common/genericIconComponent";
 
@@ -17,18 +13,17 @@ export interface SettingsSidebarItem {
 
 export function useSettingsSidebarItems(): SettingsSidebarItem[] {
   const { t } = useTranslation();
-  const autoLogin = useAuthStore((state) => state.autoLogin);
   const isSuperuser = Boolean(
     useAuthStore((state) => state.userData)?.is_superuser,
   );
-  const hasStore = useStoreStore((state) => state.hasStore);
   const migrationEnabled = useUtilityStore(
     (state) => state.featureFlags.instance_migration === true,
   );
   const items: SettingsSidebarItem[] = [];
 
-  if (ENABLE_PROFILE_ICONS || hasStore || !autoLogin) {
-    items.push({
+  // General always hosts the language selector, so it is always listed.
+  items.push(
+    {
       title: t("settings.nav.general"),
       href: "/settings/general",
       icon: (
@@ -37,10 +32,7 @@ export function useSettingsSidebarItems(): SettingsSidebarItem[] {
           className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
         />
       ),
-    });
-  }
-
-  items.push(
+    },
     {
       title: t("settings.nav.mcpServers"),
       href: "/settings/mcp-servers",
