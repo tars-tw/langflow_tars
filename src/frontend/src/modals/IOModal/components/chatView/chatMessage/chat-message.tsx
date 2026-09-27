@@ -195,7 +195,7 @@ export default function ChatMessage({
   };
 
   const editedFlag = chat.edit ? (
-    <div className="text-sm text-muted-foreground">(Edited)</div>
+    <div className="text-sm text-muted-foreground">{t("common.edited")}</div>
   ) : null;
 
   if (chat.category === "error") {

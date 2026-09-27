@@ -93,12 +93,12 @@ export function IngestionHistoryPanel({ kbName }: IngestionHistoryPanelProps) {
               className="text-xs text-muted-foreground"
               data-testid="kb-ingestion-history-loading"
             >
-              Loading history…
+              {t("knowledge.loadingHistory")}
             </div>
           )}
           {isError && !isLoading && (
             <div className="text-xs text-destructive">
-              Unable to load ingestion history.
+              {t("knowledge.historyLoadError")}
             </div>
           )}
           {!isLoading && !isError && runs.length === 0 && (
@@ -106,7 +106,7 @@ export function IngestionHistoryPanel({ kbName }: IngestionHistoryPanelProps) {
               className="text-xs text-muted-foreground"
               data-testid="kb-ingestion-history-empty"
             >
-              No sources ingested yet. The first upload will appear here.
+              {t("knowledge.historyEmpty")}
             </div>
           )}
           {runs.map((run) => {
@@ -177,7 +177,9 @@ export function IngestionHistoryPanel({ kbName }: IngestionHistoryPanelProps) {
                     </span>
                   )}
                   <span>·</span>
-                  <span>{run.chunks_created} chunks</span>
+                  <span>
+                    {t("knowledge.chunksCount", { count: run.chunks_created })}
+                  </span>
                 </div>
               </div>
             );

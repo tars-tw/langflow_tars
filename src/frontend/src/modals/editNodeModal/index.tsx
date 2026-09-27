@@ -43,7 +43,7 @@ const EditNodeModal = ({
         </span>
         <div>
           <Badge size="sm" variant={isDark ? "gray" : "secondary"}>
-            ID: {data.id}
+            {t("editNode.idLabel", { id: data.id })}
           </Badge>
         </div>
       </BaseModal.Header>

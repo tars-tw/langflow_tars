@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { APP_NAME } from "@/customization/config-constants";
 import { AssistantHeader } from "../assistant-header";
 
 jest.mock("@/components/common/genericIconComponent", () => {
@@ -28,7 +29,7 @@ describe("AssistantHeader", () => {
     it("should display 'Langflow Assistant' title", () => {
       render(<AssistantHeader {...defaultProps} />);
 
-      expect(screen.getByText("Langflow Assistant")).toBeInTheDocument();
+      expect(screen.getByText(`${APP_NAME} Assistant`)).toBeInTheDocument();
     });
 
     it("should render New session button", () => {

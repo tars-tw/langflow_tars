@@ -1,3 +1,5 @@
+/** Product name shown throughout the UI (page titles, headings, messages). */
+export const APP_NAME = "TARS Workflow";
 export const BASENAME = "";
 export const PORT = 3000;
 export const PROXY_TARGET = "http://localhost:7860";
@@ -8,6 +10,7 @@ export const HEALTH_CHECK_URL = "/health_check";
 export const DOCS_LINK = "https://docs.langflow.org";
 
 export default {
+  APP_NAME,
   DOCS_LINK,
   BASENAME,
   PORT,

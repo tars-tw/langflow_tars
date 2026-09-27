@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import langflowAssistantIcon from "@/assets/langflow_assistant.svg";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
+import TarsLogo from "@/components/common/tarsLogoComponent";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -21,8 +21,7 @@ export function AssistantEmptyState({
   return (
     <Empty className="flex-1 px-8">
       <EmptyMedia className="mb-6 h-16 w-16 overflow-hidden rounded-2xl">
-        <img
-          src={langflowAssistantIcon}
+        <TarsLogo
           alt={t("assistant.title")}
           className="h-full w-full object-cover"
         />

@@ -1,4 +1,5 @@
 import type { KnowledgeBaseInfo } from "@/controllers/API/queries/knowledge-bases/use-get-knowledge-bases";
+import { APP_NAME } from "@/customization/config-constants";
 
 /**
  * Display labels for the backends actually exposed in the UI.
@@ -40,8 +41,9 @@ export const getKnowledgeBaseBackendTarget = (
     return typeof database === "string" && database ? database : "Chroma Cloud";
   }
 
-  if (backendType === "chroma") return "Migration required";
-  if (backendType === "sqlite") return "Stored locally in Langflow";
+  if (backendType === "chroma") {
+    return `Stored locally in ${APP_NAME}`;
+  }
 
   if (backendType === "opensearch") {
     const indexName = backendConfig.index_name;

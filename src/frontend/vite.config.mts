@@ -7,6 +7,7 @@ import svgr from "vite-plugin-svgr";
 import tsconfigPaths from "vite-tsconfig-paths";
 import {
   API_ROUTES,
+  APP_NAME,
   BASENAME,
   PORT,
   PROXY_TARGET,
@@ -76,6 +77,11 @@ export default defineConfig(({ mode }) => {
       ),
     },
     plugins: [
+      {
+        name: "app-name-title",
+        transformIndexHtml: (html) =>
+          html.replace(/<title>.*?<\/title>/, `<title>${APP_NAME}</title>`),
+      },
       react(),
       svgr(),
       tsconfigPaths(),

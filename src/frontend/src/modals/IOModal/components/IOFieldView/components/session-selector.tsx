@@ -195,8 +195,8 @@ export default function SessionSelector({
               <div className="relative w-full overflow-hidden">
                 <span className="w-full truncate">
                   {session === currentFlowId
-                    ? t("modal.io.defaultSession")
-                    : sessionLabel}
+                    ? t("chat.defaultSession")
+                    : session}
                 </span>
                 <div
                   className={cn(
@@ -263,7 +263,7 @@ export default function SessionSelector({
             >
               <div className="flex items-center">
                 <IconComponent name="SquarePen" className="mr-2 h-4 w-4" />
-                Rename
+                {t("playgroundComponent.rename")}
               </div>
             </SelectItem>
             <SelectItem
@@ -274,7 +274,7 @@ export default function SessionSelector({
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center">
                   <IconComponent name="Scroll" className="mr-2 h-4 w-4" />
-                  Message logs
+                  {t("playgroundComponent.messageLogs")}
                 </div>
               </div>
             </SelectItem>
@@ -285,7 +285,7 @@ export default function SessionSelector({
             >
               <div className="flex items-center text-status-red hover:text-status-red">
                 <IconComponent name="Trash2" className="mr-2 h-4 w-4" />
-                Delete
+                {t("common.delete")}
               </div>
             </SelectItem>
           </SelectContent>

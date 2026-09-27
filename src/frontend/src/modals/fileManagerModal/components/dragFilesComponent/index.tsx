@@ -296,7 +296,9 @@ export default function DragFilesComponent({
             )}
           </span>
           <span className="font-semibold">
-            {formatFileSize(maxFileSizeUpload)} max
+            {t("fileManager.maxSize", {
+              size: formatFileSize(maxFileSizeUpload),
+            })}
           </span>
         </div>
         <div className="pointer-events-none absolute inset-0 h-full w-full">

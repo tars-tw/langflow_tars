@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
@@ -16,6 +17,7 @@ function ToolTraceItem({
 }: {
   trace: NonNullable<ChatMessage["toolTraces"]>[number];
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   return (
@@ -47,7 +49,7 @@ function ToolTraceItem({
           {trace.input !== undefined && (
             <div>
               <div className="text-muted-foreground mb-0.5 font-medium">
-                Input
+                {t("trace.input")}
               </div>
               <pre className="overflow-x-auto rounded bg-muted p-1.5 text-xs whitespace-pre-wrap break-all">
                 {formatTraceValue(trace.input)}
@@ -57,7 +59,7 @@ function ToolTraceItem({
           {trace.output !== undefined && (
             <div>
               <div className="text-muted-foreground mb-0.5 font-medium">
-                Output
+                {t("trace.output")}
               </div>
               <pre className="overflow-x-auto rounded bg-muted p-1.5 text-xs whitespace-pre-wrap break-all">
                 {formatTraceValue(trace.output)}

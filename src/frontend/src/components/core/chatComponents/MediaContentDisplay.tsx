@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type {
   AudioContent,
   FileContent,
@@ -8,6 +9,7 @@ import ForwardedIconComponent from "../../common/genericIconComponent";
 import { safeUrl } from "./url";
 
 export function ImageContentDisplay({ content }: { content: ImageContent }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-2">
       {content.urls?.map((url, index) => {
@@ -28,7 +30,7 @@ export function ImageContentDisplay({ content }: { content: ImageContent }) {
       {!content.urls?.some(Boolean) && content.base64 && (
         <img
           src={`data:${content.mime_type || "image/png"};base64,${content.base64}`}
-          alt={content.caption || "Image"}
+          alt={content.caption || t("common.image")}
           className="max-w-full rounded"
         />
       )}

@@ -12,9 +12,7 @@ export default function CsvSelect({ node, handleChangeSelect }): JSX.Element {
   const { t } = useTranslation();
   return (
     <>
-      <div className="flex justify-between">
-        Expand the output to see the CSV
-      </div>
+      <div className="flex justify-between">{t("output.csvView")}</div>
       <div className="flex items-center justify-between pt-5">
         <span>{t("modal.csvSeparator")} </span>
         <Select

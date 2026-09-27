@@ -598,7 +598,7 @@ export function useKnowledgeBaseForm({
         };
 
         setSuccessData({
-          title: `Knowledge base "${sourceName}" created`,
+          title: t("knowledge.baseCreated", { name: sourceName }),
         });
 
         onSubmit?.(callbackData);
@@ -719,8 +719,7 @@ export function useKnowledgeBaseForm({
 
       if (excludedFiles.length > 0) {
         setErrorData({
-          title:
-            "Some files were skipped. Only supported file types were uploaded. Excluded files:",
+          title: t("knowledge.filesSkipped"),
           list: excludedFiles,
         });
       }

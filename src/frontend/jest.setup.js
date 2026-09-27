@@ -3,10 +3,14 @@ const React = require("react");
 
 // Mock react-i18next globally so t(key) returns the English string from en.json
 const enTranslations = require("./src/locales/en.json");
+const { APP_NAME } = require("./src/customization/config-constants");
+// Mirrors `interpolation.defaultVariables` in src/i18n.ts.
+const DEFAULT_VARIABLES = { appName: APP_NAME };
 const interpolate = (str, params) => {
-  if (!params || typeof str !== "string") return str;
+  if (typeof str !== "string") return str;
+  const values = { ...DEFAULT_VARIABLES, ...params };
   return str.replace(/\{\{(\w+)\}\}/g, (_, k) =>
-    k in params ? params[k] : `{{${k}}}`,
+    k in values ? values[k] : `{{${k}}}`,
   );
 };
 const resolveKey = (key, params) => {
@@ -20,7 +24,7 @@ const resolveKey = (key, params) => {
 // Parse <N>text</N> interpolation tags used by Trans i18nKey values.
 const renderTrans = ({ i18nKey, children, components }) => {
   if (!i18nKey || !enTranslations[i18nKey]) return children ?? null;
-  const raw = enTranslations[i18nKey];
+  const raw = interpolate(enTranslations[i18nKey]);
   if (!components) return raw.replace(/<\d+>([\s\S]*?)<\/\d+>/g, "$1");
   const parts = raw.split(/(<\d+>[\s\S]*?<\/\d+>)/);
   return React.createElement(

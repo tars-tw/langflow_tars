@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { type FC, useState } from "react";
 import { createPortal } from "react-dom";
-import { useTranslation } from "react-i18next";
+import {
+  Trans as TransComponent,
+  type TransProps,
+  useTranslation,
+} from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSidebar } from "@/components/ui/sidebar";
 import useRestoreVersion from "@/hooks/flows/use-restore-version";
 import CanvasBanner, { CanvasBannerButton } from "./CanvasBanner";
+
+const Trans = TransComponent as unknown as FC<TransProps<string>>;
 
 interface RestoreVersionButtonProps {
   flowId: string;
@@ -45,17 +51,20 @@ export default function RestoreVersionButton({
         icon="RotateCcw"
         title={t("flow.restoreVersion")}
         description={
-          <>
-            Replace the current draft with{" "}
-            <span className="font-medium">{versionTag}</span>
-          </>
+          <Trans
+            i18nKey="flowVersion.restoreBannerDescription"
+            values={{ version: versionTag }}
+            components={{ 1: <span className="font-medium" /> }}
+          />
         }
         actionSlot={
           <CanvasBannerButton
             onClick={() => setShowConfirm(true)}
             disabled={isRestoring}
           >
-            {isRestoring ? "Restoring…" : "Restore"}
+            {isRestoring
+              ? t("flowVersion.restoring")
+              : t("flowVersion.restore")}
           </CanvasBannerButton>
         }
       />
@@ -74,8 +83,11 @@ export default function RestoreVersionButton({
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Restore <strong>{versionTag}</strong>? This will replace your
-                current canvas.
+                <Trans
+                  i18nKey="flowVersion.restoreConfirmBody"
+                  values={{ version: versionTag }}
+                  components={{ 1: <strong /> }}
+                />
               </p>
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -87,7 +99,7 @@ export default function RestoreVersionButton({
                   htmlFor="save-draft"
                   className="text-sm text-muted-foreground"
                 >
-                  Save current draft before restoring
+                  {t("flowVersion.saveDraftBeforeRestore")}
                 </label>
               </div>
               <div className="flex justify-end gap-2">
@@ -98,10 +110,10 @@ export default function RestoreVersionButton({
                     setShowConfirm(false);
                   }}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button size="sm" onClick={handleRestore} loading={isRestoring}>
-                  Restore
+                  {t("flowVersion.restore")}
                 </Button>
               </div>
             </div>

@@ -141,7 +141,7 @@ export default function IOFileInput({ field, updateValue }: IOFileInputProps) {
       >
         {!isDragging && (
           <Button variant="primary" onClick={handleButtonClick}>
-            Upload or drop your file
+            {t("ioModal.uploadOrDrop")}
           </Button>
         )}
 

@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import { useTranslation } from "react-i18next";
 import NodeDialog from "@/CustomNodes/GenericNode/components/NodeDialogComponent";
 import LoadingTextComponent from "@/components/common/loadingTextComponent";
 import type { APIClassType } from "@/types/api";
@@ -66,6 +67,7 @@ export function DropdownOptionsList({
   nodeId?: string;
   nodeClass?: APIClassType;
 }) {
+  const { t } = useTranslation();
   return (
     <CommandList className="max-h-[300px] overflow-y-auto">
       <CommandGroup defaultChecked={false} className="p-0">
@@ -185,7 +187,7 @@ export function DropdownOptionsList({
             disabled
             className="w-full text-center text-sm text-muted-foreground px-2.5 py-1.5"
           >
-            No options found
+            {t("dropdown.noOptionsFound")}
           </CommandItem>
         )}
       </CommandGroup>
@@ -231,7 +233,7 @@ export function DropdownOptionsList({
                   name="RefreshCcw"
                   className={cn("h-3 w-3")}
                 />
-                Refresh list
+                {t("dropdown.refreshList")}
               </div>
             </CommandItem>
           )}

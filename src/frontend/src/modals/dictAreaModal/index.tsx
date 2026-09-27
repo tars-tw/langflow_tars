@@ -1,10 +1,16 @@
-import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { type FC, useEffect, useRef, useState } from "react";
+import {
+  Trans as TransComponent,
+  type TransProps,
+  useTranslation,
+} from "react-i18next";
 import type { JsonEditor as VanillaJsonEditor } from "vanilla-jsoneditor";
 import useAlertStore from "@/stores/alertStore";
 import IconComponent from "../../components/common/genericIconComponent";
 import JsonEditor from "../../components/core/jsonEditor";
 import BaseModal from "../baseModal";
+
+const Trans = TransComponent as unknown as FC<TransProps<string>>;
 
 export default function DictAreaModal({
   children,
@@ -71,21 +77,23 @@ export default function DictAreaModal({
   const IteractiveReader = () => {
     return (
       <span>
-        Customize your dictionary, adding or editing key-value pairs as needed.
-        Supports adding new{" "}
-        <span
-          onClick={() => handleChangeType("object")}
-          className="cursor-pointer underline"
-        >
-          objects &#123; &#125;
-        </span>{" "}
-        or{" "}
-        <span
-          onClick={() => handleChangeType("array")}
-          className="cursor-pointer underline"
-        >
-          arrays [].
-        </span>
+        <Trans
+          i18nKey="dictAreaModal.description"
+          components={{
+            1: (
+              <span
+                onClick={() => handleChangeType("object")}
+                className="cursor-pointer underline"
+              />
+            ),
+            2: (
+              <span
+                onClick={() => handleChangeType("array")}
+                className="cursor-pointer underline"
+              />
+            ),
+          }}
+        />
       </span>
     );
   };

@@ -1,5 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import type { FC } from "react";
+import {
+  Trans as TransComponent,
+  type TransProps,
+  useTranslation,
+} from "react-i18next";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ForwardedIconComponent } from "@/components/common/genericIconComponent";
@@ -8,6 +13,8 @@ import { extractLanguage, isCodeBlock } from "@/utils/codeBlockUtils";
 import { cn } from "@/utils/utils";
 import CodeTabsComponent from "../../../../../../components/core/codeTabsComponent";
 import LogoIcon from "./chat-logo-icon";
+
+const Trans = TransComponent as unknown as FC<TransProps<string>>;
 
 export const ErrorView = ({
   closeChat,
@@ -41,7 +48,7 @@ export const ErrorView = ({
               <LogoIcon />
               <div className="flex items-center">
                 <TextShimmer className="" duration={1}>
-                  Flow running...
+                  {t("common.flowRunning")}
                 </TextShimmer>
               </div>
             </motion.div>
@@ -71,32 +78,38 @@ export const ErrorView = ({
                             {content.component && (
                               <>
                                 <span>
-                                  An error occured in the{" "}
-                                  <span
-                                    className={cn(
-                                      closeChat ?? "cursor-pointer underline",
-                                    )}
-                                    onClick={() => {
-                                      fitViewNode(
-                                        chat.properties?.source?.id ?? "",
-                                      );
-                                      closeChat?.();
+                                  <Trans
+                                    i18nKey="chat.errorInComponent"
+                                    values={{ component: content.component }}
+                                    components={{
+                                      1: (
+                                        <strong
+                                          className={cn(
+                                            closeChat ??
+                                              "cursor-pointer underline",
+                                          )}
+                                          onClick={() => {
+                                            fitViewNode(
+                                              chat.properties?.source?.id ?? "",
+                                            );
+                                            closeChat?.();
+                                          }}
+                                        />
+                                      ),
                                     }}
-                                  >
-                                    <strong>{content.component}</strong>
-                                  </span>{" "}
-                                  Component, stopping your flow. See below for
-                                  more details.
+                                  />
                                 </span>
                               </>
                             )}
                           </div>
                           <div>
                             <h3 className="pb-3 font-semibold">
-                              Error details:
+                              {t("chat.errorDetailsLabel")}
                             </h3>
                             {content.field && (
-                              <p className="pb-1">Field: {content.field}</p>
+                              <p className="pb-1">
+                                {t("chat.fieldLabel")} {content.field}
+                              </p>
                             )}
                             {content.reason && (
                               <span className="">
@@ -178,7 +191,7 @@ export const ErrorView = ({
                             {content.solution && (
                               <div className="mt-4">
                                 <h3 className="pb-3 font-semibold">
-                                  Steps to fix:
+                                  {t("chat.stepsToFix")}
                                 </h3>
                                 <ol className="list-decimal pl-5">
                                   <li>{t("instructions.checkSettings")}</li>
