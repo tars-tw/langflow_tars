@@ -1229,6 +1229,22 @@ def setup_static_files(app: FastAPI, static_files_dir: Path) -> None:
     # whose last segment contains a dot).
     app.frontend("/", directory=str(static_files_dir), fallback="index.html")
 
+    # index.html is sent with only ETag/Last-Modified, so browsers may cache it
+    # heuristically. After a frontend rebuild the cached shell points at hashed
+    # assets that no longer exist, and the app (notably when embedded in an
+    # iframe, where it cannot be hard-reloaded) renders blank. Force
+    # revalidation of the HTML shell; hashed assets stay cacheable.
+    @app.middleware("http")
+    async def no_cache_html_shell(request: Request, call_next):
+        response = await call_next(request)
+        if (
+            not request.url.path.startswith("/api")
+            and response.headers.get("content-type", "").startswith("text/html")
+            and "cache-control" not in response.headers
+        ):
+            response.headers["Cache-Control"] = "no-cache"
+        return response
+
     @app.exception_handler(404)
     async def custom_404_handler(_request, _exc):
         # Return JSON for all API endpoints to prevent HTML responses
