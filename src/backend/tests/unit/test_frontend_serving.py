@@ -54,6 +54,23 @@ def test_dotted_client_route_falls_back_to_index(frontend_client: TestClient):
     assert "id='root'" in response.text
 
 
+@pytest.mark.parametrize("path", ["/", "/index.html", "/flows/some/client/route", "/flow/my.flow.v2"])
+def test_spa_index_is_not_cached(frontend_client: TestClient, path: str):
+    # A cached index.html outlives a frontend rebuild and points at hashed
+    # assets that are gone, so every route that returns the shell must revalidate.
+    response = frontend_client.get(path)
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert response.headers["cache-control"] == "no-cache"
+
+
+def test_static_asset_cache_headers_untouched(frontend_client: TestClient):
+    # Hashed assets are immutable per build; only the HTML shell is forced to revalidate.
+    response = frontend_client.get("/assets/app.js")
+    assert response.status_code == 200
+    assert "cache-control" not in response.headers
+
+
 def test_unknown_api_path_returns_json_404(frontend_client: TestClient):
     # Missing API paths must stay JSON 404s, not the SPA index.html.
     response = frontend_client.get("/api/v1/definitely-not-a-real-route")
