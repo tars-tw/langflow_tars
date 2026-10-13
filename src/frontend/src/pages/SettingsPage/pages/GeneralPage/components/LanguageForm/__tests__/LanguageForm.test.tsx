@@ -96,28 +96,28 @@ describe("LanguageFormComponent", () => {
   it("calls i18n.changeLanguage with the selected language code", async () => {
     const user = userEvent.setup();
     render(<LanguageFormComponent />);
-    await user.selectOptions(screen.getByRole("combobox"), "fr");
-    expect(mockChangeLanguage).toHaveBeenCalledWith("fr");
+    await user.selectOptions(screen.getByRole("combobox"), "zh-Hans");
+    expect(mockChangeLanguage).toHaveBeenCalledWith("zh-Hans");
   });
 
   it("saves selected language to localStorage", async () => {
     const user = userEvent.setup();
     render(<LanguageFormComponent />);
-    await user.selectOptions(screen.getByRole("combobox"), "ja");
-    expect(localStorage.getItem("languagePreference")).toBe("ja");
+    await user.selectOptions(screen.getByRole("combobox"), "zh-Hans");
+    expect(localStorage.getItem("languagePreference")).toBe("zh-Hans");
   });
 
   it("calls setTypes with empty object on language change", async () => {
     const user = userEvent.setup();
     render(<LanguageFormComponent />);
-    await user.selectOptions(screen.getByRole("combobox"), "de");
+    await user.selectOptions(screen.getByRole("combobox"), "zh-Hans");
     expect(mockSetTypes).toHaveBeenCalledWith({});
   });
 
   it("invalidates useGetTypes query on language change", async () => {
     const user = userEvent.setup();
     render(<LanguageFormComponent />);
-    await user.selectOptions(screen.getByRole("combobox"), "es");
+    await user.selectOptions(screen.getByRole("combobox"), "zh-Hans");
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
       queryKey: ["useGetTypes"],
     });
@@ -137,17 +137,25 @@ describe("LanguageFormComponent", () => {
 
   it("does not show recommended label for other options", () => {
     render(<LanguageFormComponent />);
-    ["English", "Français"].forEach((label) => {
-      const option = screen.getByRole("option", { name: new RegExp(label) });
-      expect(option.textContent).not.toContain("settings.languageRecommended");
-    });
+    const option = screen.getByRole("option", { name: /English/ });
+    expect(option.textContent).not.toContain("settings.languageRecommended");
+  });
+
+  // TARS: 只提供繁體中文與 English
+  it("offers only Traditional Chinese and English", () => {
+    render(<LanguageFormComponent />);
+    const options = screen.getByRole("combobox").querySelectorAll("option");
+    expect(Array.from(options).map((o) => o.getAttribute("value"))).toEqual([
+      "zh-Hans",
+      "en",
+    ]);
   });
 
   it("calls loadLanguage before changeLanguage when switching languages", async () => {
     const user = userEvent.setup();
     render(<LanguageFormComponent />);
-    await user.selectOptions(screen.getByRole("combobox"), "fr");
-    expect(mockLoadLanguage).toHaveBeenCalledWith("fr");
-    expect(mockChangeLanguage).toHaveBeenCalledWith("fr");
+    await user.selectOptions(screen.getByRole("combobox"), "zh-Hans");
+    expect(mockLoadLanguage).toHaveBeenCalledWith("zh-Hans");
+    expect(mockChangeLanguage).toHaveBeenCalledWith("zh-Hans");
   });
 });

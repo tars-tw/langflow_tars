@@ -139,15 +139,20 @@ describe("GeneralPage accessibility", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders_the_language_and_password_sections", () => {
+  // TARS: 密碼由 LibreChat > pwc_tars 管理，設定頁只保留語言、不顯示密碼表單
+  it("renders_the_language_section_without_the_password_form", () => {
     renderGeneralPage();
 
     expect(
       screen.getByRole("combobox", { name: "Select language" }),
     ).toBeInTheDocument();
     // Only the password section has a "Save" submit button.
-    expect(screen.getAllByRole("button", { name: /save/i })).toHaveLength(1);
-    expect(screen.getByRole("form", { name: "Password" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /save/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("form", { name: "Password" }),
+    ).not.toBeInTheDocument();
   });
 
   it("does_not_render_the_profile_picture_section", () => {

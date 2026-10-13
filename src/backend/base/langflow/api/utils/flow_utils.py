@@ -30,6 +30,7 @@ from langflow.services.database.models.traces.model import SpanTable, TraceTable
 from langflow.services.database.models.transactions.model import TransactionTable
 from langflow.services.database.models.user.model import UserRead
 from langflow.services.database.models.vertex_builds.model import VertexBuildTable
+from langflow.services.tars.actor import apply_actor
 
 if TYPE_CHECKING:
     from langflow.services.chat.service import ChatService
@@ -55,6 +56,7 @@ async def build_graph_from_data(flow_id: uuid.UUID | str, payload: dict, **kwarg
     session_id = kwargs.get("session_id") or str_flow_id
 
     graph = Graph.from_payload(payload, str_flow_id, flow_name, kwargs.get("user_id"))
+    apply_actor(graph, kwargs.get("user_id"))
     for vertex_id in graph.has_session_id_vertices:
         vertex = graph.get_vertex(vertex_id)
         if vertex is None:

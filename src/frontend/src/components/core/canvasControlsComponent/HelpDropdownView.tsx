@@ -6,7 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import DropdownControlButton from "./DropdownControlButton";
 
 export type HelpDropdownViewProps = {
@@ -29,8 +28,6 @@ export const HelpDropdownView = ({
   helperLineEnabled,
   onToggleHelperLines,
   navigateTo,
-  openLink,
-  urls,
 }: HelpDropdownViewProps) => {
   const { t } = useTranslation();
   return (
@@ -56,33 +53,12 @@ export const HelpDropdownView = ({
         align="center"
         className="flex flex-col w-full"
       >
-        <DropdownControlButton
-          iconName="book-open"
-          testId="canvas_controls_dropdown_docs"
-          label={t("help.docs")}
-          externalLink
-          onClick={() => openLink(urls.docs)}
-        />
+        {/* TARS: 只保留「快速鍵」與「啟用智慧參考線」，文件／回報錯誤／下載桌面版不顯示 */}
         <DropdownControlButton
           iconName="keyboard"
           testId="canvas_controls_dropdown_shortcuts"
           label={t("help.shortcuts")}
           onClick={() => navigateTo("/settings/shortcuts")}
-        />
-        <DropdownControlButton
-          iconName="bug"
-          testId="canvas_controls_dropdown_report_a_bug"
-          externalLink
-          label={t("help.reportBug")}
-          onClick={() => openLink(urls.bugReport)}
-        />
-        <Separator />
-        <DropdownControlButton
-          iconName="download"
-          testId="canvas_controls_dropdown_get_langflow_desktop"
-          label={t("help.getLangflowDesktop")}
-          externalLink
-          onClick={() => openLink(urls.desktop)}
         />
         <DropdownControlButton
           iconName={!helperLineEnabled ? "UnfoldHorizontal" : "FoldHorizontal"}
