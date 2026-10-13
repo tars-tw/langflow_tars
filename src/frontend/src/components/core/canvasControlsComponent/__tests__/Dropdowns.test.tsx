@@ -142,7 +142,8 @@ describe("HelpDropdown", () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it("opens docs in new tab and navigates to shortcuts", () => {
+  // TARS: 選單只保留「快速鍵」與「啟用智慧參考線」
+  it("navigates to shortcuts and hides external links", () => {
     const mockNavigate = jest.fn();
     (useNavigate as unknown as jest.Mock).mockReturnValue(mockNavigate);
 
@@ -152,21 +153,21 @@ describe("HelpDropdown", () => {
       </MemoryRouter>,
     );
 
-    fireEvent.click(screen.getByTestId("canvas_controls_dropdown_docs"));
-    expect(window.open).toHaveBeenCalledWith(
-      "https://docs.langflow.org",
-      "_blank",
-    );
+    expect(
+      screen.queryByTestId("canvas_controls_dropdown_docs"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("canvas_controls_dropdown_report_a_bug"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("canvas_controls_dropdown_get_langflow_desktop"),
+    ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("canvas_controls_dropdown_shortcuts"));
     expect(mockNavigate).toHaveBeenCalledWith("/settings/shortcuts");
-
-    fireEvent.click(
-      screen.getByTestId("canvas_controls_dropdown_get_langflow_desktop"),
-    );
-    expect(window.open).toHaveBeenCalledWith(
-      "https://desktop.langflow.org",
-      "_blank",
-    );
+    expect(
+      screen.getByTestId("canvas_controls_dropdown_enable_smart_guides"),
+    ).toBeInTheDocument();
+    expect(window.open).not.toHaveBeenCalled();
   });
 });
