@@ -80,21 +80,20 @@ describe("HelpDropdownView", () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId("canvas_controls_dropdown_docs"));
-    expect(openLink).toHaveBeenCalledWith("https://docs");
+    // TARS: 文件／回報錯誤／下載桌面版已隱藏
+    expect(
+      screen.queryByTestId("canvas_controls_dropdown_docs"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("canvas_controls_dropdown_report_a_bug"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("canvas_controls_dropdown_get_langflow_desktop"),
+    ).not.toBeInTheDocument();
+    expect(openLink).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByTestId("canvas_controls_dropdown_shortcuts"));
     expect(navigateTo).toHaveBeenCalledWith("/settings/shortcuts");
-
-    fireEvent.click(
-      screen.getByTestId("canvas_controls_dropdown_report_a_bug"),
-    );
-    expect(openLink).toHaveBeenCalledWith("https://bugs");
-
-    fireEvent.click(
-      screen.getByTestId("canvas_controls_dropdown_get_langflow_desktop"),
-    );
-    expect(openLink).toHaveBeenCalledWith("https://desktop");
 
     fireEvent.click(
       screen.getByTestId("canvas_controls_dropdown_enable_smart_guides"),
