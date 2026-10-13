@@ -4,15 +4,8 @@ import { DEFAULT_LANGUAGE } from "./constants/languages";
 import { APP_NAME } from "./customization/config-constants";
 import en from "./locales/en.json";
 
-const SUPPORTED_LANGUAGES = [
-  "en",
-  "de",
-  "es",
-  "fr",
-  "ja",
-  "pt",
-  "zh-Hans",
-] as const;
+// TARS: 只提供繁體中文與 English
+const SUPPORTED_LANGUAGES = ["en", "zh-Hans"] as const;
 
 const normalizeLanguage = (lang?: string | null): string => {
   if (!lang) return DEFAULT_LANGUAGE;
@@ -42,9 +35,16 @@ const normalizeLanguage = (lang?: string | null): string => {
   return DEFAULT_LANGUAGE;
 };
 
-export const detectedLang = normalizeLanguage(
-  localStorage.getItem("languagePreference") || DEFAULT_LANGUAGE,
-);
+// TARS: 使用者選過且仍支援的語言優先；否則看瀏覽器語系，英文系統用 English，
+// 其餘一律用預設的繁體中文。
+const storedLang = localStorage.getItem("languagePreference");
+export const detectedLang =
+  storedLang &&
+  SUPPORTED_LANGUAGES.includes(
+    storedLang as (typeof SUPPORTED_LANGUAGES)[number],
+  )
+    ? storedLang
+    : normalizeLanguage(navigator.language);
 
 const i18n = i18next.createInstance();
 
