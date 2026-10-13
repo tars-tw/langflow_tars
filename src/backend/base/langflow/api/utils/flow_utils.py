@@ -32,7 +32,7 @@ from langflow.services.database.models.transactions.model import TransactionTabl
 from langflow.services.database.models.trigger.model import Trigger
 from langflow.services.database.models.user.model import UserRead
 from langflow.services.database.models.vertex_builds.model import VertexBuildTable
-from langflow.services.triggers.cleanup import delete_triggers
+from langflow.services.tars.actor import apply_actor
 
 if TYPE_CHECKING:
     from lfx.services.authorization.base import ExecutionPrincipal
@@ -66,8 +66,7 @@ async def build_graph_from_data(flow_id: uuid.UUID | str, payload: dict, **kwarg
     session_id = kwargs.get("session_id") or str_flow_id
 
     graph = Graph.from_payload(payload, str_flow_id, flow_name, kwargs.get("user_id"))
-    if (execution_principal := kwargs.get("execution_principal")) is not None:
-        stamp_execution_principal(graph, execution_principal)
+    apply_actor(graph, kwargs.get("user_id"))
     for vertex_id in graph.has_session_id_vertices:
         vertex = graph.get_vertex(vertex_id)
         if vertex is None:
