@@ -45,6 +45,7 @@ from langflow.api.v1 import (
     projects_router,
     starter_projects_router,
     store_router,
+    tars_router,
     traces_router,
     trigger_ingress_router,
     triggers_router,
@@ -136,10 +137,7 @@ router_v1.include_router(authz_role_assignments_router)
 router_v1.include_router(authz_teams_router)
 router_v1.include_router(authz_me_router)
 router_v1.include_router(catalog_policy_router)
-router_v1.include_router(triggers_router)
-# Unauthenticated by design: every route on it is provider-signed and answers
-# 404 for anything it cannot verify. See api/v1/trigger_ingress.py.
-router_v1.include_router(trigger_ingress_router)
+router_v1.include_router(tars_router)
 
 
 # Mounted unconditionally: this module imports before load_dotenv(env_file), so the
