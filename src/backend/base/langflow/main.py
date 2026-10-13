@@ -60,6 +60,7 @@ from langflow.services.deps import (
     session_scope,
 )
 from langflow.services.schema import ServiceType
+from langflow.services.tars.actor import ACTOR_COOKIE, bind_actor
 from langflow.services.telemetry.opentelemetry import instrument_db_pool
 from langflow.services.utils import initialize_services, initialize_settings_service, teardown_services
 from langflow.utils.mcp_cleanup import cleanup_mcp_sessions
@@ -929,6 +930,16 @@ def create_app():
         vocabulary. Never use it for authorization.
         """
         with execution_client(request.headers.get(EXECUTION_CLIENT_HEADER)):
+            return await call_next(request)
+
+    @app.middleware("http")
+    async def bind_tars_actor(request: Request, call_next):
+        """Bind who operates this browser (TARS sign-in's actor cookie) for the life of the request.
+
+        Graphs built during the request for the account that cookie was issued to get the
+        operator's pwc_tars id, so TARS components run from the canvas act for that person.
+        """
+        with bind_actor(request.cookies.get(ACTOR_COOKIE)):
             return await call_next(request)
 
     @app.middleware("http")
