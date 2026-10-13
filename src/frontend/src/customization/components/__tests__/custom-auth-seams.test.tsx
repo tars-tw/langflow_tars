@@ -43,14 +43,15 @@ describe("OSS auth customization seams", () => {
     ).toBeInTheDocument();
   });
 
-  it("passes the settings password form through", () => {
+  // TARS: 密碼由 LibreChat > pwc_tars 管理，設定頁不顯示密碼表單
+  it("hides the settings password form", () => {
     render(
       <CustomSettingsPasswordFormGate>
         <p>Password settings</p>
       </CustomSettingsPasswordFormGate>,
     );
 
-    expect(screen.getByText("Password settings")).toBeInTheDocument();
+    expect(screen.queryByText("Password settings")).not.toBeInTheDocument();
   });
 
   it("renders no SSO login options", () => {
