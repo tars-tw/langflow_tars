@@ -186,11 +186,12 @@ async def test_flows_list_for_the_chatting_user(client: AsyncClient, workspace):
 async def test_mcp_lists_the_chatting_users_tools(workspace):  # noqa: ARG001
     token = _chatting_tars_user.set("tars-alice")
     try:
-        names = [tool.name for tool in await get_tars_mcp_server().list_tools()]
+        tools = await get_tars_mcp_server().list_tools()
     finally:
         _chatting_tars_user.reset(token)
 
-    assert names == ["guide", "guide_1", "my_guide"]
+    assert [tool.name for tool in tools] == ["guide", "guide_1", "my_guide"]
+    assert [tool.title for tool in tools] == ["guide", "guide copy", "guide"]
 
 
 async def test_mcp_runs_a_personal_tool_as_its_owner(workspace, monkeypatch):
