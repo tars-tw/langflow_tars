@@ -130,7 +130,14 @@ class TarsMCPServer:
     async def list_tools(self) -> list[types.Tool]:
         """The chatting user's tools, as MCP tool definitions."""
         return [
-            types.Tool(name=tool.name, description=_description(tool), inputSchema=json_schema_from_flow(tool.flow))
+            types.Tool(
+                name=tool.name,
+                # The name is sanitized to ASCII, which empties a CJK flow name ("製作48腳位比對表格"
+                # -> "_48"); the title keeps what the flow is called, for clients to show instead.
+                title=tool.flow.name,
+                description=_description(tool),
+                inputSchema=json_schema_from_flow(tool.flow),
+            )
             for tool in await _tools_for_chatting_user()
         ]
 
@@ -138,7 +145,10 @@ class TarsMCPServer:
         """Run the named tool's flow as its owner, through Langflow's own project tool handler."""
         tool = next((tool for tool in await _tools_for_chatting_user() if tool.name == name), None)
         if tool is None:
-            msg = f"Tool '{name}' not found"
+            msg = (
+                f"Tool '{name}' not found: its flow was renamed, unpublished or deleted in Langflow. "
+                "Re-select the flow's tool in the agent builder."
+            )
             raise ValueError(msg)
         # The flow runs as its owner, who is also the caller of record: LibreChat's system
         # credential vouches for the chatting user, so this is not an anonymous public call.
