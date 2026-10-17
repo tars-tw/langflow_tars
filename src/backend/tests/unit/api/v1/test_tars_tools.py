@@ -4,7 +4,7 @@ import pytest
 from httpx import AsyncClient
 from langflow.api.v1.mcp_utils import authenticated_caller_ctx, current_user_ctx
 from langflow.api.v1.tars import tools as tars_tools_api
-from langflow.api.v1.tars.tools import _chatting_tars_user, get_tars_mcp_server
+from langflow.api.v1.tars.tools import _chatting_tars_user, _description, get_tars_mcp_server
 from langflow.initial_setup.setup import get_or_create_default_folder
 from langflow.services.database.models.api_key.crud import create_api_key
 from langflow.services.database.models.api_key.model import ApiKeyCreate
@@ -14,7 +14,7 @@ from langflow.services.database.models.user.crud import get_user_by_username
 from langflow.services.deps import session_scope
 from langflow.services.tars.accounts import find_tars_account
 from langflow.services.tars.ticket import TICKET_SECRET_ENV
-from langflow.services.tars.tools import collect_tars_tools, flow_tars_model
+from langflow.services.tars.tools import TarsTool, collect_tars_tools, flow_tars_model
 from lfx.components.input_output import ChatInput, ChatOutput
 from lfx.graph.graph.base import Graph
 
@@ -155,6 +155,21 @@ def test_reads_the_model_a_tars_node_names():
     assert flow_tars_model(Flow(name="x", data=tars_agent_flow_data("gpt-5.4-mini"))) == "gpt-5.4-mini"
     assert flow_tars_model(Flow(name="x", data=tars_agent_flow_data("  "))) is None
     assert flow_tars_model(Flow(name="x", data=chat_flow_data())) is None
+
+
+def described(name: str = "guide", **fields: str) -> str:
+    flow = Flow(name=name, **fields)
+    return _description(TarsTool(name=name, flow=flow, owner="system", owner_user=None, project_tool_name=name))
+
+
+def test_the_description_never_names_langflow():
+    assert described(description="Design Dialogues with Langflow.") == "Design Dialogues with workflow."
+    assert described(description="交給 Langflow 的 Prompt 再由LANGFLOW的模型回答") == (
+        "交給 workflow 的 Prompt 再由workflow的模型回答"
+    )
+    assert described(action_description="Runs langflow", description="ignored") == "Runs workflow"
+    assert described(name="langflow_report") == "Tool generated from flow: langflow_report"
+    assert described(description="My Langflows and langflow_api stay") == "My Langflows and langflow_api stay"
 
 
 async def test_flows_list_needs_the_system_accounts_credential(client: AsyncClient, workspace):
