@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useLogout } from "@/controllers/API/queries/auth";
-import { CustomAccountMenuCommunityLinks } from "@/customization/components/custom-account-menu-community-links";
-import { CustomAccountMenuNavigationItems } from "@/customization/components/custom-account-menu-navigation-items";
+import { CustomAdminPageMenuItem } from "@/customization/components/custom-admin-page-menu-item";
 import { CustomHeaderMenuItemsTitle } from "@/customization/components/custom-header-menu-items-title";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
 import useAuthStore from "@/stores/authStore";

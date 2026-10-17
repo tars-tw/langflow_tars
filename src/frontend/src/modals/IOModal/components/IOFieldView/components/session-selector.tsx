@@ -196,7 +196,7 @@ export default function SessionSelector({
                 <span className="w-full truncate">
                   {session === currentFlowId
                     ? t("chat.defaultSession")
-                    : session}
+                    : sessionLabel}
                 </span>
                 <div
                   className={cn(

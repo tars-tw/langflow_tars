@@ -5,11 +5,19 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { CustomStoreSidebar } from "@/customization/components/custom-store-sidebar";
 import { ENABLE_DATASTAX_LANGFLOW } from "@/customization/feature-flags";
 import { useDocumentTitle } from "@/hooks/use-document-title";
+import useAuthStore from "@/stores/authStore";
+import { useUtilityStore } from "@/stores/utilityStore";
 import ForwardedIconComponent from "../../components/common/genericIconComponent";
 import PageLayout from "../../components/common/pageLayout";
 export default function SettingsPage(): JSX.Element {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const isSuperuser = Boolean(
+    useAuthStore((state) => state.userData)?.is_superuser,
+  );
+  const migrationEnabled = useUtilityStore(
+    (state) => state.featureFlags.instance_migration === true,
+  );
   const sidebarNavItems: {
     href?: string;
     title: string;
