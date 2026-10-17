@@ -13,6 +13,7 @@ account's, since it decides whose personal flows are listed and run.
 
 from __future__ import annotations
 
+import re
 from contextvars import ContextVar
 from typing import Annotated, Any
 
@@ -65,9 +66,22 @@ def chatting_tars_user(request: Request) -> str | None:
     return value or None
 
 
+PRODUCT_LABEL = "workflow"
+"""What LibreChat's users call a flow; they never see the Langflow brand."""
+
+# ASCII word boundaries, as LibreChat's ``labels.ts`` matches (JS ``\b``): "Langflow的" still counts.
+_BRAND_PATTERN = re.compile(r"\blangflow\b", re.IGNORECASE | re.ASCII)
+
+
 def _description(tool: TarsTool) -> str:
+    """A flow's description as LibreChat shows it and hands it to the model.
+
+    Langflow seeds new flows with taglines that name itself ("Design Dialogues with Langflow."),
+    so the brand is rewritten rather than passed through.
+    """
     flow = tool.flow
-    return flow.action_description or flow.description or f"Tool generated from flow: {tool.name}"
+    description = flow.action_description or flow.description or f"Tool generated from flow: {tool.name}"
+    return _BRAND_PATTERN.sub(PRODUCT_LABEL, description)
 
 
 class TarsToolRead(BaseModel):

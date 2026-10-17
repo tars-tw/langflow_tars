@@ -41,9 +41,8 @@ export const getKnowledgeBaseBackendTarget = (
     return typeof database === "string" && database ? database : "Chroma Cloud";
   }
 
-  if (backendType === "chroma") {
-    return `Stored locally in ${APP_NAME}`;
-  }
+  if (backendType === "chroma") return "Migration required";
+  if (backendType === "sqlite") return `Stored locally in ${APP_NAME}`;
 
   if (backendType === "opensearch") {
     const indexName = backendConfig.index_name;

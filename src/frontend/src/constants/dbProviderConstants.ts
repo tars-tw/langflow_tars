@@ -80,10 +80,10 @@ export interface DBProviderOption {
 
 export const DB_PROVIDER_OPTIONS: DBProviderOption[] = [
   {
-    id: "chroma",
-    label: "Chroma Local",
+    id: "sqlite",
+    label: "SQLite Local",
     description: `Local vector storage bundled with ${APP_NAME}. No additional configuration required.`,
-    icon: "Chroma",
+    icon: "database",
     status: "available",
     defaultEnabled: true,
     configFields: [],
