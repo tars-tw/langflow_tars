@@ -13,6 +13,7 @@ import { usePlaygroundStore } from "@/stores/playgroundStore";
 import { cn } from "@/utils/utils";
 import { useSearchContext } from "../index";
 import { NAV_ITEMS } from "./sidebar-nav-items";
+import { useVisibleNavItems } from "./use-visible-nav-items";
 
 export type { SidebarSection };
 export { NAV_ITEMS };
@@ -40,8 +41,7 @@ const SidebarSegmentedNav = ({
   const setPlaygroundFullscreen = usePlaygroundStore(
     (state) => state.setIsFullscreen,
   );
-  // The Agent tab is always available; it handles eligibility inside the tab.
-  const items = NAV_ITEMS;
+  const items = useVisibleNavItems();
   const firstFeatureIndex = items.findIndex((item) =>
     FEATURE_SECTION_IDS.has(item.id),
   );

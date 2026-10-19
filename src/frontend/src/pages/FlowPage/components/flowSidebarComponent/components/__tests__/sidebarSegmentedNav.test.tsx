@@ -24,6 +24,8 @@ const mockUseSearchContext = {
   setSearch: jest.fn(),
 };
 
+const mockUtilityStore = { a2aEnabled: true };
+
 const mockPlaygroundStore = {
   setIsOpen: jest.fn(),
   setIsFullscreen: jest.fn(),
@@ -122,6 +124,12 @@ jest.mock("@/stores/playgroundStore", () => ({
     selector(mockPlaygroundStore),
 }));
 
+jest.mock("@/stores/utilityStore", () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: legacy
+  useUtilityStore: (selector: (state: typeof mockUtilityStore) => any) =>
+    selector(mockUtilityStore),
+}));
+
 describe("SidebarSegmentedNav", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -129,6 +137,7 @@ describe("SidebarSegmentedNav", () => {
     mockUseSidebar.activeSection = "components" as SidebarSection;
     mockUseSidebar.open = true;
     mockUseSearchContext.isSearchFocused = false;
+    mockUtilityStore.a2aEnabled = true;
     jest.useFakeTimers();
     jest.clearAllTimers();
   });
@@ -446,13 +455,25 @@ describe("SidebarSegmentedNav", () => {
     });
   });
 
-  it("always shows the agent tab", () => {
+  it("shows the agent tab when A2A is enabled on the server", () => {
     render(<SidebarSegmentedNav />);
 
-    // The tab renders for every flow; eligibility is handled inside the tab.
     expect(screen.getByTestId("sidebar-nav-agent")).toBeInTheDocument();
     expect(screen.getByTestId("sidebar-nav-components")).toBeInTheDocument();
     expect(screen.getByTestId("sidebar-nav-memories")).toBeInTheDocument();
+  });
+
+  it("hides the agent tab when A2A is disabled on the server", () => {
+    mockUtilityStore.a2aEnabled = false;
+    const { container } = render(<SidebarSegmentedNav />);
+
+    expect(screen.queryByTestId("sidebar-nav-agent")).not.toBeInTheDocument();
+    expect(screen.getByTestId("sidebar-nav-memories")).toBeInTheDocument();
+    // The separator moves to the next feature tab.
+    const separator = container.querySelector("li[aria-hidden='true']");
+    expect(separator?.nextElementSibling).toContainElement(
+      screen.getByTestId("sidebar-nav-memories"),
+    );
   });
 
   it("sets active section to traces when clicking traces", () => {
