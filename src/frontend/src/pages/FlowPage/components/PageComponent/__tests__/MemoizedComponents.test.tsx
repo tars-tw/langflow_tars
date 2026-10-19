@@ -112,23 +112,26 @@ jest.mock("@/components/common/genericIconComponent", () => ({
   ),
 }));
 
-// Mock NAV_ITEMS
-jest.mock("../../flowSidebarComponent/components/sidebarSegmentedNav", () => ({
-  NAV_ITEMS: [
-    {
-      id: "search",
-      icon: "search",
-      label: "Search",
-      tooltip: "Search",
-    },
-    {
-      id: "components",
-      icon: "component",
-      label: "Components",
-      tooltip: "Components",
-    },
-  ],
-}));
+// Mock the visible nav items
+jest.mock(
+  "../../flowSidebarComponent/components/use-visible-nav-items",
+  () => ({
+    useVisibleNavItems: () => [
+      {
+        id: "search",
+        icon: "search",
+        label: "Search",
+        tooltip: "Search",
+      },
+      {
+        id: "components",
+        icon: "component",
+        label: "Components",
+        tooltip: "Components",
+      },
+    ],
+  }),
+);
 
 describe("MemoizedSidebarTrigger", () => {
   beforeEach(() => {

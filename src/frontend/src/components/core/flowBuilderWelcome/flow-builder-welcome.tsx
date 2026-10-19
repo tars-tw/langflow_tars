@@ -10,7 +10,7 @@ import { useEnabledModels } from "@/components/core/assistantPanel/hooks/use-ena
 import { Button } from "@/components/ui/button";
 import type { SidebarSection } from "@/components/ui/sidebar";
 import ModelProviderModal from "@/modals/modelProviderModal";
-import { NAV_ITEMS } from "@/pages/FlowPage/components/flowSidebarComponent/components/sidebar-nav-items";
+import { useVisibleNavItems } from "@/pages/FlowPage/components/flowSidebarComponent/components/use-visible-nav-items";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { useUtilityStore } from "@/stores/utilityStore";
 import {
@@ -36,7 +36,7 @@ interface FlowBuilderWelcomeProps {
 }
 
 // Faux rail uses the SAME source of truth as the real ``SidebarSegmentedNav``
-// — importing ``NAV_ITEMS`` directly so any future add/remove/reorder of
+// — via ``useVisibleNavItems`` so any future add/remove/reorder of
 // sidebar sections is automatically reflected here. Keeps the two views from
 // drifting apart.
 
@@ -50,6 +50,7 @@ export function FlowBuilderWelcome({
   onClose,
   onSelectRailItem,
 }: FlowBuilderWelcomeProps) {
+  const navItems = useVisibleNavItems();
   const [message, setMessage] = useState("");
   // Same server-owned cap the assistant panel uses (LANGFLOW_ASSISTANT_MAX_MESSAGE_LENGTH,
   // served by /config): this textarea posts to the same assistant endpoint.
@@ -149,8 +150,7 @@ export function FlowBuilderWelcome({
         className="absolute left-1.5 top-1.5 z-10 flex w-10 animate-in flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-1 duration-300 fade-in slide-in-from-left-2"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Mirror the real always-visible nav, Agent tab included. */}
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const tooltip = t(item.tooltip);
           return (
             <ShadTooltip key={item.id} content={tooltip} side="right">
