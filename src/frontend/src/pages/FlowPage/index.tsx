@@ -53,9 +53,8 @@ function FlowPageMainContent({
   const { activeSection } = useSidebar();
   const showTraces = ENABLE_NEW_SIDEBAR && activeSection === "traces";
   const showMemories = ENABLE_NEW_SIDEBAR && activeSection === "memories";
-  // The Agent tab is always available. It handles its own three states
-  // (ineligible / eligible-not-serving / serving) inside AgentMainContent, so
-  // there's nothing to fall back to the canvas for.
+  // The Agent tab is only reachable when LANGFLOW_A2A_ENABLED is on (see
+  // useVisibleNavItems); AgentMainContent handles flow eligibility itself.
   const showAgent = ENABLE_NEW_SIDEBAR && activeSection === "agent";
 
   if (showAgent) {

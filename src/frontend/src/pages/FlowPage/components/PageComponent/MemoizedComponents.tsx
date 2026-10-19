@@ -11,7 +11,7 @@ import useAssistantManagerStore from "@/stores/assistantManagerStore";
 import useFlowStore from "@/stores/flowStore";
 import { AllNodeType } from "@/types/flow";
 import { cn } from "@/utils/utils";
-import { NAV_ITEMS } from "../flowSidebarComponent/components/sidebarSegmentedNav";
+import { useVisibleNavItems } from "../flowSidebarComponent/components/use-visible-nav-items";
 
 export const MemoizedBackground = memo(() => (
   <Background id="main-canvas-bg" size={2} gap={20} className="" />
@@ -51,6 +51,7 @@ export const MemoizedCanvasControls = memo(
 export const MemoizedSidebarTrigger = memo(() => {
   const { t } = useTranslation();
   const { open, toggleSidebar, setActiveSection } = useSidebar();
+  const navItems = useVisibleNavItems();
   if (ENABLE_NEW_SIDEBAR) {
     if (open) return null;
 
@@ -62,7 +63,7 @@ export const MemoizedSidebarTrigger = memo(() => {
         )}
         position="top-left"
       >
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <CanvasControlButton
             data-testid={`sidebar-trigger-${item.id}`}
             iconName={item.icon}
