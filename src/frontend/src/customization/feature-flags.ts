@@ -17,7 +17,7 @@ export const ENABLE_VOICE_ASSISTANT = true;
 export const ENABLE_FILES_ON_PLAYGROUND = true;
 export const ENABLE_MCP = true;
 export const ENABLE_MCP_NOTICE = false;
-export const ENABLE_KNOWLEDGE_BASES = true;
+export const ENABLE_KNOWLEDGE_BASES = false;
 export const ENABLE_INSPECTION_PANEL = true;
 // Keeps the Triggers palette category (the Schedule trigger) hidden until
 // TRG-7 ships the enable toggle and state badge. Flow-save reconciliation
