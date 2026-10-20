@@ -723,7 +723,16 @@ def _get_flow_input_nodes(flow: Flow) -> list[Vertex]:
     # stored ``code``, and this runs for callers who may never build the flow -- anonymous MCP
     # ``tools/list`` on an ``auth_type="none"`` project and the public A2A agent card -- so it
     # would run code the public call paths refuse to execute.
-    graph = Graph.from_payload(flow.data or {}, instantiate_components=False)
+    # Parsing still resolves FileInput values, and under LANGFLOW_RESTRICT_LOCAL_FILE_ACCESS that
+    # needs a storage scope; without the flow's own identity a saved file path fails the parse.
+    flow_id = getattr(flow, "id", None)
+    owner_id = getattr(flow, "user_id", None)
+    graph = Graph.from_payload(
+        flow.data or {},
+        flow_id=str(flow_id) if flow_id else None,
+        user_id=str(owner_id) if owner_id else None,
+        instantiate_components=False,
+    )
     return [vertex for vertex in graph.vertices if vertex.is_input]
 
 
