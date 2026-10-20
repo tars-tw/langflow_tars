@@ -143,17 +143,25 @@ class TarsMCPServer:
 
     async def list_tools(self) -> list[types.Tool]:
         """The chatting user's tools, as MCP tool definitions."""
-        return [
-            types.Tool(
-                name=tool.name,
-                # The name is sanitized to ASCII, which empties a CJK flow name ("製作48腳位比對表格"
-                # -> "_48"); the title keeps what the flow is called, for clients to show instead.
-                title=tool.flow.name,
-                description=_description(tool),
-                inputSchema=json_schema_from_flow(tool.flow),
+        tools: list[types.Tool] = []
+        for tool in await _tools_for_chatting_user():
+            # One flow whose schema cannot be derived must not take every other tool down with it.
+            try:
+                input_schema = json_schema_from_flow(tool.flow)
+            except Exception as e:  # noqa: BLE001
+                await logger.aerror(f"Flow excluded from TARS tool list -- {tool.name} ({tool.flow.id}): {e!s}")
+                continue
+            tools.append(
+                types.Tool(
+                    name=tool.name,
+                    # The name is sanitized to ASCII, which empties a CJK flow name ("製作48腳位比對表格"
+                    # -> "_48"); the title keeps what the flow is called, for clients to show instead.
+                    title=tool.flow.name,
+                    description=_description(tool),
+                    inputSchema=input_schema,
+                )
             )
-            for tool in await _tools_for_chatting_user()
-        ]
+        return tools
 
     async def call_tool(self, name: str, arguments: dict) -> list[types.TextContent]:
         """Run the named tool's flow as its owner, through Langflow's own project tool handler."""
