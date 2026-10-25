@@ -244,3 +244,34 @@ async def test_mcp_refuses_someone_elses_personal_tool(workspace):  # noqa: ARG0
             await get_tars_mcp_server().call_tool("my_bobs", {})
     finally:
         _chatting_tars_user.reset(token)
+
+
+MCP_URL = "api/v1/tars/mcp/streamable"
+MCP_HEADERS = {"accept": "application/json, text/event-stream", "content-type": "application/json"}
+
+
+async def test_mcp_offers_no_standalone_stream(client: AsyncClient):
+    """LibreChat aborts a held-open GET stream whenever it closes a connection, which the HTTP
+    middleware chain reports as "No response returned"; a stateless server has nothing to push on
+    one, so it is refused at once (clients read 405 as "no stream offered")."""
+    response = await client.get(MCP_URL, headers={"accept": "text/event-stream"})
+
+    assert response.status_code == 405
+    assert response.headers["allow"] == "POST, DELETE"
+
+
+async def test_mcp_still_answers_posts(client: AsyncClient, workspace):
+    system_key = await api_key_for(workspace["system"].id)
+    initialize = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "t", "version": "1"}},
+    }
+
+    response = await client.post(
+        MCP_URL, json=initialize, headers={**MCP_HEADERS, "x-api-key": system_key, TARS_HEADER: "tars-alice"}
+    )
+
+    assert response.status_code == 200
+    assert '"serverInfo"' in response.text

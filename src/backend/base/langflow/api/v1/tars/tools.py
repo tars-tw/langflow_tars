@@ -19,7 +19,7 @@ from typing import Annotated, Any
 
 import anyio
 from anyio.abc import TaskStatus
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from lfx.base.mcp.util import sanitize_mcp_name
 from lfx.log.logger import logger
 from mcp import types
@@ -221,8 +221,21 @@ async def mcp_health() -> ResponseNoOp:
     return ResponseNoOp(status_code=status.HTTP_200_OK)
 
 
-@router.api_route("/mcp/streamable", methods=["GET", "POST", "DELETE"], response_class=ResponseNoOp)
-@router.api_route("/mcp/streamable/", methods=["GET", "POST", "DELETE"], response_class=ResponseNoOp)
+@router.get("/mcp/streamable")
+@router.get("/mcp/streamable/")
+async def refuse_mcp_stream() -> Response:
+    """No standalone SSE stream: the server is stateless, so nothing could ever be pushed on one.
+
+    Clients treat 405 as "no stream offered". Holding one open instead leaves a GET for every
+    connection that the client aborts when it closes -- LibreChat right after listing the tools --
+    and an aborted GET fails in the HTTP middleware chain with "No response returned". Answered
+    before the caller is authenticated, so it never waits on the database.
+    """
+    return Response(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, headers={"Allow": "POST, DELETE"})
+
+
+@router.api_route("/mcp/streamable", methods=["POST", "DELETE"], response_class=ResponseNoOp)
+@router.api_route("/mcp/streamable/", methods=["POST", "DELETE"], response_class=ResponseNoOp)
 async def handle_mcp(request: Request, _caller: SystemCaller) -> Any:
     server = get_tars_mcp_server()
     await server.ensure_session_manager_running()
