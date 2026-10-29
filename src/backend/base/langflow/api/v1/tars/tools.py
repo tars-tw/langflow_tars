@@ -43,6 +43,14 @@ from langflow.services.database.models.user.model import User
 from langflow.services.deps import session_scope
 from langflow.services.tars.accounts import find_system_account
 from langflow.services.tars.actor import TARS_USER_VARIABLE
+from langflow.services.tars.files import (
+    FILES_FIELD,
+    WORKFLOW_FILES_ARGUMENT,
+    accepts_files,
+    parse_refs,
+    stage_librechat_files,
+    without_files_field,
+)
 from langflow.services.tars.tools import TarsTool, collect_tars_tools, flow_tars_model
 
 router = APIRouter(tags=["TARS"], include_in_schema=False)
@@ -147,7 +155,7 @@ class TarsMCPServer:
         for tool in await _tools_for_chatting_user():
             # One flow whose schema cannot be derived must not take every other tool down with it.
             try:
-                input_schema = json_schema_from_flow(tool.flow)
+                input_schema = without_files_field(json_schema_from_flow(tool.flow))
             except Exception as e:  # noqa: BLE001
                 await logger.aerror(f"Flow excluded from TARS tool list -- {tool.name} ({tool.flow.id}): {e!s}")
                 continue
@@ -174,6 +182,7 @@ class TarsMCPServer:
             raise ValueError(msg)
         # The flow runs as its owner, who is also the caller of record: LibreChat's system
         # credential vouches for the chatting user, so this is not an anonymous public call.
+        arguments = await _with_librechat_files(tool, arguments)
         user_token = current_user_ctx.set(tool.owner_user)
         caller_token = authenticated_caller_ctx.set(tool.owner_user.id)
         try:
@@ -207,6 +216,22 @@ class TarsMCPServer:
 
 
 _mcp_server: TarsMCPServer | None = None
+
+
+async def _with_librechat_files(tool: TarsTool, arguments: dict) -> dict:
+    """The call's arguments with LibreChat's file references swapped for the staged files.
+
+    ``files`` is never taken from the caller: it names server paths, so only the staged LibreChat
+    attachments go there, and only for a flow that opted in by putting Chat Input's Files on the node.
+    """
+    arguments = dict(arguments or {})
+    refs = parse_refs(arguments.pop(WORKFLOW_FILES_ARGUMENT, None))
+    arguments.pop(FILES_FIELD, None)
+    if refs and accepts_files(json_schema_from_flow(tool.flow)):
+        keys = await stage_librechat_files(tool.flow.id, refs)
+        if keys:
+            arguments[FILES_FIELD] = keys
+    return arguments
 
 
 def get_tars_mcp_server() -> TarsMCPServer:

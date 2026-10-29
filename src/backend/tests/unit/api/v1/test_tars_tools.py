@@ -206,7 +206,9 @@ async def test_mcp_lists_the_chatting_users_tools(workspace):  # noqa: ARG001
         _chatting_tars_user.reset(token)
 
     assert [tool.name for tool in tools] == ["guide", "guide_1", "my_guide"]
-    assert [tool.title for tool in tools] == ["guide", "guide copy", "guide"]
+    # Which of the two shared projects claims the bare name follows their ids; both stay listed.
+    assert {tool.title for tool in tools[:2]} == {"guide", "guide copy"}
+    assert tools[2].title == "guide"
 
 
 async def test_mcp_runs_a_personal_tool_as_its_owner(workspace, monkeypatch):
@@ -251,9 +253,12 @@ MCP_HEADERS = {"accept": "application/json, text/event-stream", "content-type": 
 
 
 async def test_mcp_offers_no_standalone_stream(client: AsyncClient):
-    """LibreChat aborts a held-open GET stream whenever it closes a connection, which the HTTP
+    """A standalone GET stream is refused at once with 405.
+
+    LibreChat aborts a held-open GET stream whenever it closes a connection, which the HTTP
     middleware chain reports as "No response returned"; a stateless server has nothing to push on
-    one, so it is refused at once (clients read 405 as "no stream offered")."""
+    one, so it is refused (clients read 405 as "no stream offered").
+    """
     response = await client.get(MCP_URL, headers={"accept": "text/event-stream"})
 
     assert response.status_code == 405
