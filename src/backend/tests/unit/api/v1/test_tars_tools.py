@@ -251,9 +251,12 @@ MCP_HEADERS = {"accept": "application/json, text/event-stream", "content-type": 
 
 
 async def test_mcp_offers_no_standalone_stream(client: AsyncClient):
-    """LibreChat aborts a held-open GET stream whenever it closes a connection, which the HTTP
+    """A standalone GET stream is refused at once with 405.
+
+    LibreChat aborts a held-open GET stream whenever it closes a connection, which the HTTP
     middleware chain reports as "No response returned"; a stateless server has nothing to push on
-    one, so it is refused at once (clients read 405 as "no stream offered")."""
+    one, so it is refused (clients read 405 as "no stream offered").
+    """
     response = await client.get(MCP_URL, headers={"accept": "text/event-stream"})
 
     assert response.status_code == 405
