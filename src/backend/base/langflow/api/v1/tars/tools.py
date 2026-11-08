@@ -5,10 +5,18 @@ API key (``x-api-key``), and they read who is chatting from the header LibreChat
 (``x-langflow-global-var-tars_user_id``). The key is refused unless it is the system
 account's, since it decides whose personal flows are listed and run.
 
-* ``GET  /api/v1/tars/flows`` — the tools for that user, for LibreChat to keep its agents in step.
-* ``/api/v1/tars/mcp/streamable`` — an MCP server (Streamable HTTP) publishing the same tools.
-  A call is handed to Langflow's own project tool handler as the flow's owner, so permission
-  checks, progress and the caller's request variables behave exactly as on a project server.
+* ``GET  /api/v1/tars/flows`` — the tools for that user, each with its project, for LibreChat to
+  keep its per-project agents in step.
+* ``GET  /api/v1/tars/projects`` — every project holding a published flow, shared and personal,
+  for LibreChat to register one MCP server per project (it hides personal ones from other users).
+* ``/api/v1/tars/mcp/project/{project_id}/streamable`` — one project's tools as an MCP server
+  (Streamable HTTP), named as Langflow's own project server names them. A personal project
+  answers only its owner; anyone else gets 404.
+* ``/api/v1/tars/mcp/streamable`` — every project's tools flattened into one server (deprecated:
+  what LibreChat used before it split Workflow by project; kept for configs still pinned to it).
+
+A call is handed to Langflow's own project tool handler as the flow's owner, so permission
+checks, progress and the caller's request variables behave exactly as on a project server.
 """
 
 from __future__ import annotations
@@ -16,6 +24,7 @@ from __future__ import annotations
 import re
 from contextvars import ContextVar
 from typing import Annotated, Any
+from uuid import UUID
 
 import anyio
 from anyio.abc import TaskStatus
@@ -51,11 +60,20 @@ from langflow.services.tars.files import (
     stage_librechat_files,
     without_files_field,
 )
-from langflow.services.tars.tools import TarsTool, collect_tars_tools, flow_tars_model
+from langflow.services.tars.tools import (
+    TarsTool,
+    aggregate_tars_tools,
+    collect_tars_projects,
+    collect_tars_tools,
+    find_tars_project,
+    flow_tars_model,
+    list_all_tars_projects,
+)
 
 router = APIRouter(tags=["TARS"], include_in_schema=False)
 
 _chatting_tars_user: ContextVar[str | None] = ContextVar("tars_chatting_user", default=None)
+_chatting_project: ContextVar[UUID | None] = ContextVar("tars_chatting_project", default=None)
 
 
 async def require_system_caller(current_user: CurrentActiveMCPUser, db: DbSessionReadOnly) -> User:
@@ -81,6 +99,10 @@ PRODUCT_LABEL = "workflow"
 _BRAND_PATTERN = re.compile(r"\blangflow\b", re.IGNORECASE | re.ASCII)
 
 
+def _unbranded(text: str) -> str:
+    return _BRAND_PATTERN.sub(PRODUCT_LABEL, text)
+
+
 def _description(tool: TarsTool) -> str:
     """A flow's description as LibreChat shows it and hands it to the model.
 
@@ -88,8 +110,7 @@ def _description(tool: TarsTool) -> str:
     so the brand is rewritten rather than passed through.
     """
     flow = tool.flow
-    description = flow.action_description or flow.description or f"Tool generated from flow: {tool.name}"
-    return _BRAND_PATTERN.sub(PRODUCT_LABEL, description)
+    return _unbranded(flow.action_description or flow.description or f"Tool generated from flow: {tool.name}")
 
 
 class TarsToolRead(BaseModel):
@@ -102,12 +123,27 @@ class TarsToolRead(BaseModel):
     action_name: str
     """The flow's action name as Langflow's project listing reports it (sanitized, untruncated):
     the key LibreChat named its shared agents by before this list existed."""
+    project_id: str
+    project_name: str
+    project_description: str
+    project_tool_name: str
+    """The tool's name on its project's server (``/mcp/project/{project_id}/streamable``)."""
+
+
+class TarsProjectRead(BaseModel):
+    project_id: str
+    name: str
+    description: str
+    owner: str
+    tars_id: str | None
+    """The pwc_tars user a personal project belongs to; None for a shared one."""
 
 
 @router.get("/flows")
 async def list_flows(request: Request, _caller: SystemCaller, db: DbSessionReadOnly) -> list[TarsToolRead]:
     """The tools the chatting user may use: shared flows plus their own, MCP switch on."""
-    tools = await collect_tars_tools(db, chatting_tars_user(request))
+    projects = await collect_tars_projects(db, chatting_tars_user(request))
+    project_of = {tool.flow.id: project for project in projects for tool in project.tools}
     return [
         TarsToolRead(
             tool_name=tool.name,
@@ -117,14 +153,38 @@ async def list_flows(request: Request, _caller: SystemCaller, db: DbSessionReadO
             owner=tool.owner,
             tars_model=flow_tars_model(tool.flow),
             action_name=sanitize_mcp_name(tool.flow.action_name or tool.flow.name),
+            project_id=str(project_of[tool.flow.id].id),
+            project_name=project_of[tool.flow.id].name,
+            project_description=_unbranded(project_of[tool.flow.id].description or ""),
+            project_tool_name=tool.project_tool_name,
         )
-        for tool in tools
+        for tool in aggregate_tars_tools(projects)
+    ]
+
+
+@router.get("/projects")
+async def list_projects(_caller: SystemCaller, db: DbSessionReadOnly) -> list[TarsProjectRead]:
+    """Every project holding a published flow, shared and personal alike."""
+    return [
+        TarsProjectRead(
+            project_id=str(project.id),
+            name=project.name,
+            description=_unbranded(project.description or ""),
+            owner=project.owner,
+            tars_id=project.tars_id,
+        )
+        for project in await list_all_tars_projects(db)
     ]
 
 
 async def _tools_for_chatting_user() -> list[TarsTool]:
+    """The aggregate server's tools, or one project's when the request came in on its server."""
     async with session_scope() as db:
-        return await collect_tars_tools(db, _chatting_tars_user.get())
+        project_id = _chatting_project.get()
+        if project_id is None:
+            return await collect_tars_tools(db, _chatting_tars_user.get())
+        project = await find_tars_project(db, _chatting_tars_user.get(), project_id)
+        return project.tools if project else []
 
 
 class TarsMCPServer:
@@ -262,9 +322,39 @@ async def refuse_mcp_stream() -> Response:
 @router.api_route("/mcp/streamable", methods=["POST", "DELETE"], response_class=ResponseNoOp)
 @router.api_route("/mcp/streamable/", methods=["POST", "DELETE"], response_class=ResponseNoOp)
 async def handle_mcp(request: Request, _caller: SystemCaller) -> Any:
+    return await _serve_mcp(request, None)
+
+
+@router.head("/mcp/project/{project_id}/streamable")
+async def project_mcp_health(project_id: UUID) -> ResponseNoOp:  # noqa: ARG001
+    return ResponseNoOp(status_code=status.HTTP_200_OK)
+
+
+@router.get("/mcp/project/{project_id}/streamable")
+@router.get("/mcp/project/{project_id}/streamable/")
+async def refuse_project_mcp_stream(project_id: UUID) -> Response:  # noqa: ARG001
+    """As on the aggregate server: stateless, so no standalone stream is offered."""
+    return Response(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, headers={"Allow": "POST, DELETE"})
+
+
+@router.api_route("/mcp/project/{project_id}/streamable", methods=["POST", "DELETE"], response_class=ResponseNoOp)
+@router.api_route("/mcp/project/{project_id}/streamable/", methods=["POST", "DELETE"], response_class=ResponseNoOp)
+async def handle_project_mcp(project_id: UUID, request: Request, _caller: SystemCaller, db: DbSessionReadOnly) -> Any:
+    """One project's tools, for whoever may use it.
+
+    Anyone may use a shared project, only its owner a personal one. Every other caller, and a
+    project with nothing published, gets 404.
+    """
+    if await find_tars_project(db, chatting_tars_user(request), project_id) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    return await _serve_mcp(request, project_id)
+
+
+async def _serve_mcp(request: Request, project_id: UUID | None) -> Any:
     server = get_tars_mcp_server()
     await server.ensure_session_manager_running()
 
+    project_token = _chatting_project.set(project_id)
     chatting_token = _chatting_tars_user.set(chatting_tars_user(request))
     variables = extract_global_variables_from_headers(request.headers, include_auth_headers=True)
     variables_token = current_request_variables_ctx.set(variables or None)
@@ -280,4 +370,5 @@ async def handle_mcp(request: Request, _caller: SystemCaller) -> Any:
         current_request_headers_ctx.reset(headers_token)
         current_request_variables_ctx.reset(variables_token)
         _chatting_tars_user.reset(chatting_token)
+        _chatting_project.reset(project_token)
     return ResponseNoOp(status_code=status.HTTP_200_OK)

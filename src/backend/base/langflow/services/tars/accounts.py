@@ -64,3 +64,14 @@ async def list_tars_accounts(db: AsyncSession) -> list[TarsAccount]:
     )
     rows = (await db.exec(stmt)).all()
     return [TarsAccount(tars_id=tars_id, username=username, last_login_at=last) for tars_id, username, last in rows]
+
+
+async def list_tars_account_users(db: AsyncSession) -> list[tuple[str, User]]:
+    """Every active Langflow account linked to a pwc_tars user, with that user's id."""
+    stmt = (
+        select(SSOUserProfile.sso_user_id, User)
+        .join(User, User.id == SSOUserProfile.user_id)
+        .where(SSOUserProfile.sso_provider == TARS_PROVIDER, User.is_active.is_(True))  # type: ignore[attr-defined]
+        .order_by(User.username)
+    )
+    return [(tars_id, user) for tars_id, user in (await db.exec(stmt)).all()]
