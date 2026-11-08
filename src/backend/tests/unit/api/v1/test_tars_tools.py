@@ -4,7 +4,7 @@ import pytest
 from httpx import AsyncClient
 from langflow.api.v1.mcp_utils import authenticated_caller_ctx, current_user_ctx
 from langflow.api.v1.tars import tools as tars_tools_api
-from langflow.api.v1.tars.tools import _chatting_tars_user, _description, get_tars_mcp_server
+from langflow.api.v1.tars.tools import _chatting_project, _chatting_tars_user, _description, get_tars_mcp_server
 from langflow.initial_setup.setup import get_or_create_default_folder
 from langflow.services.database.models.api_key.crud import create_api_key
 from langflow.services.database.models.api_key.model import ApiKeyCreate
@@ -14,13 +14,20 @@ from langflow.services.database.models.user.crud import get_user_by_username
 from langflow.services.deps import session_scope
 from langflow.services.tars.accounts import find_tars_account
 from langflow.services.tars.ticket import TICKET_SECRET_ENV
-from langflow.services.tars.tools import TarsTool, collect_tars_tools, flow_tars_model
+from langflow.services.tars.tools import (
+    TarsTool,
+    collect_tars_projects,
+    collect_tars_tools,
+    flow_tars_model,
+    list_all_tars_projects,
+)
 from lfx.components.input_output import ChatInput, ChatOutput
 from lfx.graph.graph.base import Graph
 
 from tests.unit.api.v1.test_tars_sso import SECRET, make_ticket
 
 FLOWS_URL = "api/v1/tars/flows"
+PROJECTS_URL = "api/v1/tars/projects"
 TARS_HEADER = "x-langflow-global-var-tars_user_id"
 
 
@@ -37,11 +44,11 @@ def chat_flow_data() -> dict:
     return Graph(chat_input, chat_output).dump()["data"]
 
 
-def tars_agent_flow_data(model: str) -> dict:
+def tars_agent_flow_data(model: str, node_type: str = "TarsAgent") -> dict:
     return {
         "nodes": [
             {"data": {"type": "ChatInput", "node": {"template": {}}}},
-            {"data": {"type": "TarsAgent", "node": {"template": {"model_name": {"value": model}}}}},
+            {"data": {"type": node_type, "node": {"template": {"model_name": {"value": model}}}}},
         ],
         "edges": [],
     }
@@ -157,6 +164,15 @@ def test_reads_the_model_a_tars_node_names():
     assert flow_tars_model(Flow(name="x", data=chat_flow_data())) is None
 
 
+def test_reads_the_model_an_extension_tars_node_names():
+    extension = tars_agent_flow_data("gemini-3.6-flash", "ext:tars:TarsAgentComponent@extra")
+    assert flow_tars_model(Flow(name="x", data=extension)) == "gemini-3.6-flash"
+    tool = tars_agent_flow_data("gemini-3.6-flash", "ext:tars:TarsToolComponent@extra")
+    assert flow_tars_model(Flow(name="x", data=tool)) == "gemini-3.6-flash"
+    other = tars_agent_flow_data("gpt-5.4-mini", "ext:openai:OpenAIModelComponent@official")
+    assert flow_tars_model(Flow(name="x", data=other)) is None
+
+
 def described(name: str = "guide", **fields: str) -> str:
     flow = Flow(name=name, **fields)
     return _description(TarsTool(name=name, flow=flow, owner="system", owner_user=None, project_tool_name=name))
@@ -196,6 +212,10 @@ async def test_flows_list_for_the_chatting_user(client: AsyncClient, workspace):
     assert {row["name"] for row in listed} == {"guide", "guide copy", "bobs"}
     assert all(row["tars_model"] is None for row in listed)
     assert {row["action_name"] for row in listed} == {"guide", "bobs"}
+    # On its own project's server every tool keeps the bare name.
+    assert [row["project_tool_name"] for row in listed] == ["guide", "guide", "bobs"]
+    assert {row["project_name"] for row in listed} == {"Starter Project", "Second"}
+    assert len({row["project_id"] for row in listed}) == 3
 
 
 async def test_mcp_lists_the_chatting_users_tools(workspace):  # noqa: ARG001
@@ -280,3 +300,116 @@ async def test_mcp_still_answers_posts(client: AsyncClient, workspace):
 
     assert response.status_code == 200
     assert '"serverInfo"' in response.text
+
+
+async def test_projects_group_each_owners_published_flows(workspace):
+    projects = await projects_for("tars-alice")
+
+    assert [(project.owner, project.tars_id, [tool.name for tool in project.tools]) for project in projects] == [
+        *[("system", None, ["guide"])] * 2,
+        ("personal", "tars-alice", ["guide"]),
+    ]
+    assert projects[2].id == await default_folder(workspace["alice"])
+    assert projects[2].owner_user.id == workspace["alice"]
+
+
+async def test_every_published_project_is_listed_for_registration(client: AsyncClient, workspace):
+    async with session_scope() as db:
+        everyone = await list_all_tars_projects(db)
+    assert sorted((project.owner, project.tars_id) for project in everyone) == [
+        ("personal", "tars-alice"),
+        ("personal", "tars-bob"),
+        ("system", None),
+        ("system", None),
+    ]
+
+    system_key = await api_key_for(workspace["system"].id)
+    response = await client.get(PROJECTS_URL, headers={"x-api-key": system_key})
+    assert response.status_code == 200
+    assert {row["project_id"] for row in response.json()} == {str(project.id) for project in everyone}
+
+    alice_key = await api_key_for(workspace["alice"])
+    assert (await client.get(PROJECTS_URL, headers={"x-api-key": alice_key})).status_code == 403
+
+
+async def projects_for(tars_id: str | None):
+    async with session_scope() as db:
+        return await collect_tars_projects(db, tars_id)
+
+
+async def test_a_project_server_lists_only_that_projects_tools(workspace):  # noqa: ARG001
+    second = next(project for project in await projects_for(None) if project.name == "Second")
+    user_token = _chatting_tars_user.set("tars-alice")
+    project_token = _chatting_project.set(second.id)
+    try:
+        tools = await get_tars_mcp_server().list_tools()
+    finally:
+        _chatting_project.reset(project_token)
+        _chatting_tars_user.reset(user_token)
+
+    assert [(tool.name, tool.title) for tool in tools] == [("guide", "guide copy")]
+
+
+async def test_a_project_server_runs_its_tool_in_that_project(workspace, monkeypatch):
+    seen = {}
+
+    async def fake_handle_call_tool(*, name, arguments, server, project_id, is_action):  # noqa: ARG001
+        seen.update(name=name, project_id=project_id, user=current_user_ctx.get().id)
+        return []
+
+    monkeypatch.setattr(tars_tools_api, "handle_call_tool", fake_handle_call_tool)
+    alice_project = await default_folder(workspace["alice"])
+    user_token = _chatting_tars_user.set("tars-alice")
+    project_token = _chatting_project.set(alice_project)
+    try:
+        await get_tars_mcp_server().call_tool("guide", {"input_value": "hi"})
+    finally:
+        _chatting_project.reset(project_token)
+        _chatting_tars_user.reset(user_token)
+
+    assert seen == {"name": "guide", "project_id": alice_project, "user": workspace["alice"]}
+
+
+def project_mcp_url(project_id: UUID) -> str:
+    return f"api/v1/tars/mcp/project/{project_id}/streamable"
+
+
+async def test_a_personal_project_server_answers_only_its_owner(client: AsyncClient, workspace, monkeypatch):
+    # The server's session manager runs once per instance; an earlier test's app already ran it.
+    monkeypatch.setattr(tars_tools_api, "_mcp_server", None)
+    system_key = await api_key_for(workspace["system"].id)
+    bob_project = await default_folder(workspace["bob"])
+    initialize = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "t", "version": "1"}},
+    }
+
+    def post(tars_id: str):
+        return client.post(
+            project_mcp_url(bob_project),
+            json=initialize,
+            headers={**MCP_HEADERS, "x-api-key": system_key, TARS_HEADER: tars_id},
+        )
+
+    assert (await post("tars-alice")).status_code == 404
+    owner = await post("tars-bob")
+    assert owner.status_code == 200
+    assert '"serverInfo"' in owner.text
+
+    alice_key = await api_key_for(workspace["alice"])
+    refused = await client.post(
+        project_mcp_url(bob_project),
+        json=initialize,
+        headers={**MCP_HEADERS, "x-api-key": alice_key, TARS_HEADER: "tars-bob"},
+    )
+    assert refused.status_code == 403
+
+
+async def test_a_project_server_offers_no_standalone_stream(client: AsyncClient, workspace):
+    response = await client.get(
+        project_mcp_url(await default_folder(workspace["system"].id)), headers={"accept": "text/event-stream"}
+    )
+
+    assert response.status_code == 405
