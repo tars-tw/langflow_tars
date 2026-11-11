@@ -8,6 +8,10 @@ MCP server there, and its tools carry exactly the names Langflow's own project M
 them (``build_mcp_tool_name_map``, per project, in ``Flow.id`` order), so a call can be handed
 straight to its ``handle_call_tool``.
 
+Someone else's personal project is also served when LibreChat vouches for the call
+(``find_personal_tars_project``): its owner shared an agent built on it with the chatting user.
+LibreChat decides that, tool by tool; Langflow only serves the project it names.
+
 The older aggregate view (``collect_tars_tools``) flattens every project into one list: a flow's
 personal tools carry ``my_`` so they never collide with a shared one, and a name two of an
 owner's projects both produce is de-duplicated with a numeric suffix.
@@ -25,7 +29,13 @@ from sqlmodel import col, select
 
 from langflow.services.database.models.flow.model import Flow
 from langflow.services.database.models.folder.model import Folder
-from langflow.services.tars.accounts import find_system_account, find_tars_account, list_tars_account_users
+from langflow.services.database.models.user.crud import get_user_by_id
+from langflow.services.tars.accounts import (
+    find_system_account,
+    find_tars_account,
+    find_tars_id,
+    list_tars_account_users,
+)
 
 if TYPE_CHECKING:
     from uuid import UUID
@@ -161,6 +171,26 @@ async def collect_tars_projects(db: AsyncSession, tars_id: str | None) -> list[T
 async def find_tars_project(db: AsyncSession, tars_id: str | None, project_id: UUID) -> TarsProject | None:
     """The project if ``tars_id`` may use it: a shared one, or their own."""
     return next((project for project in await collect_tars_projects(db, tars_id) if project.id == project_id), None)
+
+
+async def find_personal_tars_project(db: AsyncSession, project_id: UUID) -> TarsProject | None:
+    """Any pwc_tars user's personal project holding a published flow, whoever is chatting.
+
+    Only for a call LibreChat vouches for (the project's owner shared an agent built on it with the
+    chatting user), so the system account's projects and an inactive owner's are not served here.
+    """
+    folder = await db.get(Folder, project_id)
+    if folder is None or folder.user_id is None:
+        return None
+    system = await find_system_account(db)
+    if system is not None and folder.user_id == system.id:
+        return None
+    owner = await get_user_by_id(db, folder.user_id)
+    tars_id = await find_tars_id(db, folder.user_id)
+    if owner is None or not owner.is_active or tars_id is None:
+        return None
+    projects = await _owner_projects(db, owner, "personal", tars_id)
+    return next((project for project in projects if project.id == project_id), None)
 
 
 async def list_all_tars_projects(db: AsyncSession) -> list[TarsProject]:
