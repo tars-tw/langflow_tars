@@ -21,6 +21,7 @@ from langflow.services.tars.ticket import TARS_PROVIDER
 
 if TYPE_CHECKING:
     from datetime import datetime
+    from uuid import UUID
 
     from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -40,6 +41,15 @@ async def find_tars_account(db: AsyncSession, tars_id: str) -> User | None:
     )
     user_id = (await db.exec(stmt)).first()
     return await get_user_by_id(db, user_id) if user_id else None
+
+
+async def find_tars_id(db: AsyncSession, user_id: UUID) -> str | None:
+    """The pwc_tars user a Langflow account is linked to, or None for an unlinked one."""
+    stmt = select(SSOUserProfile.sso_user_id).where(
+        SSOUserProfile.sso_provider == TARS_PROVIDER,
+        SSOUserProfile.user_id == user_id,
+    )
+    return (await db.exec(stmt)).first()
 
 
 async def find_system_account(db: AsyncSession) -> User | None:

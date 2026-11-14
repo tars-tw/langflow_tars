@@ -11,7 +11,10 @@ account's, since it decides whose personal flows are listed and run.
   for LibreChat to register one MCP server per project (it hides personal ones from other users).
 * ``/api/v1/tars/mcp/project/{project_id}/streamable`` — one project's tools as an MCP server
   (Streamable HTTP), named as Langflow's own project server names them. A personal project
-  answers only its owner; anyone else gets 404.
+  answers its owner, and anyone else only when LibreChat vouches for the call with
+  ``x-tars-workflow-access: agent-share`` (the owner shared an agent built on it with them;
+  LibreChat checks that, and which of its tools the agent binds, before every connection and
+  call). Everyone else gets 404.
 * ``/api/v1/tars/mcp/streamable`` — every project's tools flattened into one server (deprecated:
   what LibreChat used before it split Workflow by project; kept for configs still pinned to it).
 
@@ -23,7 +26,7 @@ from __future__ import annotations
 
 import re
 from contextvars import ContextVar
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any
 from uuid import UUID
 
 import anyio
@@ -65,15 +68,28 @@ from langflow.services.tars.tools import (
     aggregate_tars_tools,
     collect_tars_projects,
     collect_tars_tools,
+    find_personal_tars_project,
     find_tars_project,
     flow_tars_model,
     list_all_tars_projects,
 )
 
+if TYPE_CHECKING:
+    from sqlmodel.ext.asyncio.session import AsyncSession
+
+    from langflow.services.tars.tools import TarsProject
+
 router = APIRouter(tags=["TARS"], include_in_schema=False)
 
 _chatting_tars_user: ContextVar[str | None] = ContextVar("tars_chatting_user", default=None)
 _chatting_project: ContextVar[UUID | None] = ContextVar("tars_chatting_project", default=None)
+_agent_share_access: ContextVar[bool] = ContextVar("tars_agent_share_access", default=False)
+
+AGENT_SHARE_HEADER = "x-tars-workflow-access"
+AGENT_SHARE_ACCESS = "agent-share"
+"""LibreChat's word that the chatting user reaches this personal project through an agent its
+owner shared with them. Only the system account's credential is accepted here, so only LibreChat
+can say it."""
 
 
 async def require_system_caller(current_user: CurrentActiveMCPUser, db: DbSessionReadOnly) -> User:
@@ -90,6 +106,20 @@ SystemCaller = Annotated[User, Depends(require_system_caller)]
 def chatting_tars_user(request: Request) -> str | None:
     value = extract_global_variables_from_headers(request.headers).get(TARS_USER_VARIABLE, "").strip()
     return value or None
+
+
+def vouched_by_agent_share(request: Request) -> bool:
+    return request.headers.get(AGENT_SHARE_HEADER, "").strip().lower() == AGENT_SHARE_ACCESS
+
+
+async def usable_tars_project(
+    db: AsyncSession, tars_id: str | None, project_id: UUID, *, agent_share: bool
+) -> TarsProject | None:
+    """The project if ``tars_id`` may use it: shared, their own, or vouched for as an agent share."""
+    project = await find_tars_project(db, tars_id, project_id)
+    if project is None and agent_share and tars_id:
+        return await find_personal_tars_project(db, project_id)
+    return project
 
 
 PRODUCT_LABEL = "workflow"
@@ -183,7 +213,9 @@ async def _tools_for_chatting_user() -> list[TarsTool]:
         project_id = _chatting_project.get()
         if project_id is None:
             return await collect_tars_tools(db, _chatting_tars_user.get())
-        project = await find_tars_project(db, _chatting_tars_user.get(), project_id)
+        project = await usable_tars_project(
+            db, _chatting_tars_user.get(), project_id, agent_share=_agent_share_access.get()
+        )
         return project.tools if project else []
 
 
@@ -342,10 +374,11 @@ async def refuse_project_mcp_stream(project_id: UUID) -> Response:  # noqa: ARG0
 async def handle_project_mcp(project_id: UUID, request: Request, _caller: SystemCaller, db: DbSessionReadOnly) -> Any:
     """One project's tools, for whoever may use it.
 
-    Anyone may use a shared project, only its owner a personal one. Every other caller, and a
-    project with nothing published, gets 404.
+    Anyone may use a shared project; a personal one its owner, and whoever LibreChat vouches for as
+    an agent share. Every other caller, and a project with nothing published, gets 404.
     """
-    if await find_tars_project(db, chatting_tars_user(request), project_id) is None:
+    agent_share = vouched_by_agent_share(request)
+    if await usable_tars_project(db, chatting_tars_user(request), project_id, agent_share=agent_share) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
     return await _serve_mcp(request, project_id)
 
@@ -356,6 +389,7 @@ async def _serve_mcp(request: Request, project_id: UUID | None) -> Any:
 
     project_token = _chatting_project.set(project_id)
     chatting_token = _chatting_tars_user.set(chatting_tars_user(request))
+    agent_share_token = _agent_share_access.set(project_id is not None and vouched_by_agent_share(request))
     variables = extract_global_variables_from_headers(request.headers, include_auth_headers=True)
     variables_token = current_request_variables_ctx.set(variables or None)
     headers_token = current_request_headers_ctx.set(request.headers)
@@ -369,6 +403,7 @@ async def _serve_mcp(request: Request, project_id: UUID | None) -> Any:
     finally:
         current_request_headers_ctx.reset(headers_token)
         current_request_variables_ctx.reset(variables_token)
+        _agent_share_access.reset(agent_share_token)
         _chatting_tars_user.reset(chatting_token)
         _chatting_project.reset(project_token)
     return ResponseNoOp(status_code=status.HTTP_200_OK)

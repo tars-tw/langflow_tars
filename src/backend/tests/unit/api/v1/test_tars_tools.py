@@ -4,7 +4,13 @@ import pytest
 from httpx import AsyncClient
 from langflow.api.v1.mcp_utils import authenticated_caller_ctx, current_user_ctx
 from langflow.api.v1.tars import tools as tars_tools_api
-from langflow.api.v1.tars.tools import _chatting_project, _chatting_tars_user, _description, get_tars_mcp_server
+from langflow.api.v1.tars.tools import (
+    _agent_share_access,
+    _chatting_project,
+    _chatting_tars_user,
+    _description,
+    get_tars_mcp_server,
+)
 from langflow.initial_setup.setup import get_or_create_default_folder
 from langflow.services.database.models.api_key.crud import create_api_key
 from langflow.services.database.models.api_key.model import ApiKeyCreate
@@ -18,6 +24,7 @@ from langflow.services.tars.tools import (
     TarsTool,
     collect_tars_projects,
     collect_tars_tools,
+    find_personal_tars_project,
     flow_tars_model,
     list_all_tars_projects,
 )
@@ -413,3 +420,95 @@ async def test_a_project_server_offers_no_standalone_stream(client: AsyncClient,
     )
 
     assert response.status_code == 405
+
+
+AGENT_SHARE = {"x-tars-workflow-access": "agent-share"}
+INITIALIZE = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "t", "version": "1"}},
+}
+
+
+async def test_a_personal_project_server_answers_an_agent_share_librechat_vouches_for(
+    client: AsyncClient, workspace, monkeypatch
+):
+    monkeypatch.setattr(tars_tools_api, "_mcp_server", None)
+    system_key = await api_key_for(workspace["system"].id)
+    bob_project = await default_folder(workspace["bob"])
+
+    def post(key: str, tars_id: str, extra: dict):
+        return client.post(
+            project_mcp_url(bob_project),
+            json=INITIALIZE,
+            headers={**MCP_HEADERS, "x-api-key": key, TARS_HEADER: tars_id, **extra},
+        )
+
+    assert (await post(system_key, "tars-alice", {})).status_code == 404
+    vouched = await post(system_key, "tars-alice", AGENT_SHARE)
+    assert vouched.status_code == 200
+    assert '"serverInfo"' in vouched.text
+    assert (await post(system_key, "", AGENT_SHARE)).status_code == 404
+    alice_key = await api_key_for(workspace["alice"])
+    assert (await post(alice_key, "tars-alice", AGENT_SHARE)).status_code == 403
+
+
+async def owner_project_tools(tars_id: str, project_id: UUID, *, agent_share: bool):
+    tokens = (
+        _chatting_tars_user.set(tars_id),
+        _chatting_project.set(project_id),
+        _agent_share_access.set(agent_share),
+    )
+    try:
+        return await get_tars_mcp_server().list_tools()
+    finally:
+        _agent_share_access.reset(tokens[2])
+        _chatting_project.reset(tokens[1])
+        _chatting_tars_user.reset(tokens[0])
+
+
+async def test_an_agent_share_lists_the_owners_project_and_runs_it_as_the_owner(workspace, monkeypatch):
+    seen = {}
+
+    async def fake_handle_call_tool(*, name, arguments, server, project_id, is_action):  # noqa: ARG001
+        seen.update(name=name, project_id=project_id, user=current_user_ctx.get().id)
+        return []
+
+    monkeypatch.setattr(tars_tools_api, "handle_call_tool", fake_handle_call_tool)
+    bob_project = await default_folder(workspace["bob"])
+
+    assert await owner_project_tools("tars-alice", bob_project, agent_share=False) == []
+    assert [tool.name for tool in await owner_project_tools("tars-alice", bob_project, agent_share=True)] == ["bobs"]
+
+    tokens = (
+        _chatting_tars_user.set("tars-alice"),
+        _chatting_project.set(bob_project),
+        _agent_share_access.set(True),
+    )
+    try:
+        await get_tars_mcp_server().call_tool("bobs", {"input_value": "hi"})
+    finally:
+        _agent_share_access.reset(tokens[2])
+        _chatting_project.reset(tokens[1])
+        _chatting_tars_user.reset(tokens[0])
+
+    assert seen == {"name": "bobs", "project_id": bob_project, "user": workspace["bob"]}
+
+
+async def test_an_agent_share_reaches_only_an_active_owners_personal_project(workspace):
+    from langflow.services.database.models.user.model import User
+
+    bob_project = await default_folder(workspace["bob"])
+    async with session_scope() as db:
+        assert (await find_personal_tars_project(db, bob_project)).id == bob_project
+        assert await find_personal_tars_project(db, await default_folder(workspace["system"].id)) is None
+        assert await find_personal_tars_project(db, await default_folder(workspace["alice"])) is not None
+
+    async with session_scope() as db:
+        user = await db.get(User, workspace["bob"])
+        user.is_active = False
+        db.add(user)
+
+    async with session_scope() as db:
+        assert await find_personal_tars_project(db, bob_project) is None
