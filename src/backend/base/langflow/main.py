@@ -1009,6 +1009,11 @@ def create_app():
         )
         raise RuntimeError(msg)
 
+    from langflow.services.tars.models import register_tars_model_provider
+
+    # Before any model picker is built, so TARS is in the provider tables every worker serves.
+    register_tars_model_provider()
+
     from langflow.utils.version import get_version_info
 
     __version__ = get_version_info()["version"]

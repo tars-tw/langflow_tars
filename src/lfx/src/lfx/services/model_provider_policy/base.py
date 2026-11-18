@@ -159,6 +159,14 @@ class ModelProviderPolicyError(PermissionError):
         super().__init__(message)
 
 
+def _serves_embeddings(provider_id: str) -> bool:
+    from lfx.base.models.provider_registry import provider_name_for_id
+    from lfx.base.models.unified_models.class_registry import EMBEDDING_PROVIDER_CLASS_MAPPING
+
+    name = provider_name_for_id(provider_id)
+    return name is not None and name in EMBEDDING_PROVIDER_CLASS_MAPPING
+
+
 @dataclass(frozen=True)
 class ModelProviderPolicySnapshot:
     """Immutable decision set for one context, purpose, and candidate catalog."""
@@ -168,6 +176,8 @@ class ModelProviderPolicySnapshot:
     candidate_provider_ids: frozenset[str]
     allowed_provider_ids: frozenset[str]
     blocked_model_keys: frozenset[str] = frozenset()
+    # Providers that may serve language models; ``None`` leaves every allowed provider free to.
+    language_model_provider_ids: frozenset[str] | None = None
 
     def __post_init__(self) -> None:
         candidates = frozenset(self.candidate_provider_ids)
@@ -178,6 +188,8 @@ class ModelProviderPolicySnapshot:
         object.__setattr__(self, "candidate_provider_ids", candidates)
         object.__setattr__(self, "allowed_provider_ids", allowed)
         object.__setattr__(self, "blocked_model_keys", frozenset(self.blocked_model_keys))
+        if self.language_model_provider_ids is not None:
+            object.__setattr__(self, "language_model_provider_ids", frozenset(self.language_model_provider_ids))
 
     @staticmethod
     def _stable_id(provider: str) -> str:
@@ -198,7 +210,27 @@ class ModelProviderPolicySnapshot:
         if not self.allows(provider):
             raise ModelProviderPolicyError(self._stable_id(provider), self.purpose)
 
+    def _language_models_locked_out(self, provider: str, model_type: str | None) -> bool:
+        # An untyped request may be for a language model, so the lock applies to it too.
+        return (
+            self.language_model_provider_ids is not None
+            and model_type in {"llm", None}
+            and self._stable_id(provider) not in self.language_model_provider_ids
+        )
+
+    def allows_model_type(self, provider: str, model_type: str | None) -> bool:
+        """Return whether an allowed provider may serve models of this type at all."""
+        return self.allows(provider) and not self._language_models_locked_out(provider, model_type)
+
+    def require_model_type(self, provider: str, model_type: str | None) -> None:
+        """Raise a reason-coded error when a provider may not serve models of this type."""
+        self.require(provider)
+        if self._language_models_locked_out(provider, model_type):
+            raise ModelProviderPolicyError(self._stable_id(provider), self.purpose)
+
     def _model_is_blocked(self, provider: str, model_name: str, model_type: str | None) -> bool:
+        if self._language_models_locked_out(provider, model_type):
+            return True
         if not self.blocked_model_keys:
             return False
         if model_name in self.blocked_model_keys:
@@ -313,6 +345,22 @@ class BaseModelProviderPolicyService(Service, abc.ABC):
         _ = context, purpose
         return ()
 
+    def get_language_model_provider_ids(
+        self,
+        *,
+        context: ModelProviderPolicyContext,
+        purpose: ModelProviderPolicyPurpose,
+    ) -> Collection[str] | None:
+        """Return the stable IDs allowed to serve language models, or ``None`` for no restriction.
+
+        The default reads the process-wide lock (``language_lock``). Like
+        ``get_blocked_model_keys``, this is an in-memory read: no I/O.
+        """
+        _ = context, purpose
+        from lfx.services.model_provider_policy.language_lock import language_model_provider_lock
+
+        return language_model_provider_lock()
+
     @staticmethod
     def _cache_key(
         *,
@@ -327,11 +375,15 @@ class BaseModelProviderPolicyService(Service, abc.ABC):
             # objects. They remain available to the policy evaluator, but a
             # value without a safe structural identity must bypass the cache.
             return None
+        from lfx.services.model_provider_policy.language_lock import language_model_provider_lock
+
         return (
             str(context.user_id) if context.user_id is not None else None,
             attributes,
             purpose,
             candidate_provider_ids,
+            # A lock set or lifted after start-up must not be answered from an older snapshot.
+            language_model_provider_lock(),
         )
 
     def _cache_lookup(
@@ -381,12 +433,23 @@ class BaseModelProviderPolicyService(Service, abc.ABC):
         purpose: ModelProviderPolicyPurpose,
         allowed_provider_ids: Collection[str],
     ) -> ModelProviderPolicySnapshot:
+        allowed = frozenset(allowed_provider_ids)
+        language_providers = self.get_language_model_provider_ids(context=context, purpose=purpose)
+        if language_providers is not None:
+            language_providers = frozenset(language_providers)
+            # A provider without embedding models has nothing left to offer once it may not serve language models.
+            allowed = frozenset(
+                provider_id
+                for provider_id in allowed
+                if provider_id in language_providers or _serves_embeddings(provider_id)
+            )
         return ModelProviderPolicySnapshot(
             context=context,
             purpose=purpose,
             candidate_provider_ids=candidate_provider_ids,
-            allowed_provider_ids=frozenset(allowed_provider_ids),
+            allowed_provider_ids=allowed,
             blocked_model_keys=frozenset(self.get_blocked_model_keys(context=context, purpose=purpose)),
+            language_model_provider_ids=language_providers,
         )
 
     def resolve(

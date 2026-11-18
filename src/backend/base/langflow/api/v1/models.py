@@ -107,7 +107,30 @@ async def _aresolve_read_policy(
         purpose=requested,
         candidate_provider_ids=baseline.candidate_provider_ids,
         allowed_provider_ids=baseline.allowed_provider_ids & requested_snapshot.allowed_provider_ids,
+        language_model_provider_ids=baseline.language_model_provider_ids,
     )
+
+
+def _drop_policy_blocked_models(provider_rows: list[dict], provider_policy: ModelProviderPolicySnapshot) -> None:
+    """Remove the model rows policy forbids (e.g. language models of a provider kept for embeddings)."""
+    for provider_dict in provider_rows:
+        models = provider_dict.get("models")
+        if not isinstance(models, list):
+            continue
+        provider = provider_dict.get("provider", "")
+        kept = [
+            model
+            for model in models
+            if not isinstance(model, dict)
+            or provider_policy.allows_model(
+                provider,
+                str(model.get("model_name") or ""),
+                model_type=(model.get("metadata") or {}).get("model_type") or "llm",
+            )
+        ]
+        if len(kept) != len(models):
+            provider_dict["models"] = kept
+            provider_dict["num_models"] = len(kept)
 
 
 def _require_provider_from_policy(provider_policy: ModelProviderPolicySnapshot, provider: str) -> None:
@@ -419,6 +442,7 @@ async def list_models(
     filtered_models = [
         provider_data for provider_data in filtered_models if provider_policy.allows(provider_data.get("provider", ""))
     ]
+    _drop_policy_blocked_models(filtered_models, provider_policy)
 
     # replace_with_live_models iterates every live-capable provider regardless of
     # the ?provider= filter, so it can append providers the caller excluded (e.g.
@@ -990,6 +1014,7 @@ async def _get_enabled_models_result(
         for provider_data in all_models_by_provider
         if provider_policy.allows(provider_data.get("provider", ""))
     ]
+    _drop_policy_blocked_models(all_models_by_provider, provider_policy)
 
     enabled_models: dict[str, dict[str, bool]] = {}
     enabled_models_by_type: dict[str, dict[str, dict[str, bool]]] = {}

@@ -330,6 +330,15 @@ async def get_all(
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+def _palette_model_types(component: dict) -> tuple[str, ...]:
+    """The model types a standalone model component builds, read from its declared outputs."""
+    methods = {output.get("method") for output in component.get("outputs") or [] if isinstance(output, dict)}
+    model_types = ("embeddings",) if "build_embeddings" in methods else ()
+    if "build_embeddings" not in methods or "build_model" in methods:
+        model_types = (*model_types, "llm")
+    return model_types
+
+
 async def _filter_component_palette_by_provider_policy(
     all_types: dict[str, dict[str, dict]],
     *,
@@ -365,7 +374,7 @@ async def _filter_component_palette_by_provider_policy(
             if not isinstance(component, dict)
             or not isinstance(component.get("metadata"), dict)
             or not (provider_id := component["metadata"].get("model_provider_id"))
-            or policy.allows(provider_id)
+            or any(policy.allows_model_type(provider_id, model_type) for model_type in _palette_model_types(component))
         }
         for category, components in all_types.items()
     }

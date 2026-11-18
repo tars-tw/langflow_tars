@@ -50,6 +50,7 @@ async def _resolve_option_policy(
         purpose=requested,
         candidate_provider_ids=baseline.candidate_provider_ids,
         allowed_provider_ids=baseline.allowed_provider_ids & requested_snapshot.allowed_provider_ids,
+        language_model_provider_ids=baseline.language_model_provider_ids,
     )
 
 

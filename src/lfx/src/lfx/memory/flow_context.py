@@ -95,6 +95,30 @@ def reset_current_message_executor_id(token: contextvars.Token[UUID | None]) -> 
     _current_message_executor_id.reset(token)
 
 
+# The executing graph's ``context["request_variables"]`` (values a caller injected per request,
+# e.g. ``X-Langflow-Global-Var-*`` headers), so code a component reaches without the graph --
+# a model client built by ``get_llm`` -- can still see who the run is for.
+_current_request_variables: contextvars.ContextVar[dict[str, Any] | None] = contextvars.ContextVar(
+    "lfx_current_request_variables",
+    default=None,
+)
+
+
+def get_current_request_variables() -> dict[str, Any]:
+    """Return the executing graph's request variables (empty outside a graph run)."""
+    return dict(_current_request_variables.get() or {})
+
+
+def set_current_request_variables(variables: dict[str, Any] | None) -> contextvars.Token[dict[str, Any] | None]:
+    """Bind the executing graph's request variables for the current async task / thread."""
+    return _current_request_variables.set(dict(variables) if variables else None)
+
+
+def reset_current_request_variables(token: contextvars.Token[dict[str, Any] | None]) -> None:
+    """Restore the previous request-variable scope."""
+    _current_request_variables.reset(token)
+
+
 # Ambient "may this run persist chat memory?" flag. Bound per component execution
 # (next to the flow-id scope) from ``graph.persist_messages`` so ``astore_message``
 # can skip the DB write for anonymous serving requests, which must run ephemerally.
