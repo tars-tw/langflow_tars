@@ -112,11 +112,13 @@ async def get_instance_results(
         reset_current_flow_id,
         reset_current_message_executor_id,
         reset_current_message_owner_id,
+        reset_current_request_variables,
         reset_messages_persist,
         resolve_message_owner_id,
         set_current_flow_id,
         set_current_message_executor_id,
         set_current_message_owner_id,
+        set_current_request_variables,
         set_messages_persist,
         should_persist_messages,
     )
@@ -130,6 +132,11 @@ async def get_instance_results(
     owner_id = resolve_message_owner_id(graph)
     owner_scope_token = set_current_message_owner_id(owner_id)
     executor_scope_token = set_current_message_executor_id(coerce_flow_id(getattr(graph, "user_id", None)))
+    graph_context = getattr(graph, "context", None)
+    request_variables = graph_context.get("request_variables") if isinstance(graph_context, dict) else None
+    request_variables_token = set_current_request_variables(
+        request_variables if isinstance(request_variables, dict) else None
+    )
     # Bind the run's message-persistence flag here too (defaults True) so
     # astore_message can skip the DB write for an anonymous serving run. Reading it
     # off the graph and binding in the component's own task sidesteps any
@@ -157,6 +164,7 @@ async def get_instance_results(
         reset_current_flow_id(flow_scope_token)
         reset_current_message_owner_id(owner_scope_token)
         reset_current_message_executor_id(executor_scope_token)
+        reset_current_request_variables(request_variables_token)
         reset_messages_persist(persist_token)
 
 

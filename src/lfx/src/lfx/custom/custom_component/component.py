@@ -1454,14 +1454,23 @@ class Component(CustomComponent):
         # ``agent_llm`` instead of ModelInput. Saved flows execute their
         # embedded component source, so they do not inherit a newer Agent
         # override; recognize the stable legacy selector in the shared base.
-        legacy_provider = effective_parameters.get("agent_llm")
-        if isinstance(legacy_provider, str):
-            legacy_provider = legacy_provider.strip()
-            if legacy_provider and legacy_provider != "Custom":
-                provider_id = resolve_provider_id(legacy_provider)
-                if provider_id not in provider_ids:
-                    provider_ids.append(provider_id)
+        legacy_provider_id = self._legacy_agent_llm_provider_id(effective_parameters)
+        if legacy_provider_id and legacy_provider_id not in provider_ids:
+            provider_ids.append(legacy_provider_id)
         return tuple(provider_ids)
+
+    @staticmethod
+    def _legacy_agent_llm_provider_id(parameters: Mapping[str, Any] | None) -> str | None:
+        """The provider a historical Agent/ALTK node's ``agent_llm`` dropdown names, if any."""
+        from lfx.base.models.provider_registry import resolve_provider_id
+
+        legacy_provider = parameters.get("agent_llm") if isinstance(parameters, Mapping) else None
+        if not isinstance(legacy_provider, str):
+            return None
+        legacy_provider = legacy_provider.strip()
+        if not legacy_provider or legacy_provider == "Custom":
+            return None
+        return resolve_provider_id(legacy_provider)
 
     def _selected_model_provider_policy_id(self, parameters: Mapping[str, Any] | None = None) -> str | None:
         """Return the first selected ModelInput provider for compatibility."""
@@ -1576,6 +1585,15 @@ class Component(CustomComponent):
         )
         for provider_id in provider_ids:
             snapshot.require(provider_id)
+        effective_parameters = parameters if parameters is not None else getattr(self, "_parameters", None)
+        legacy_provider_id = self._legacy_agent_llm_provider_id(effective_parameters)
+        # Agents read that dropdown only while no ModelInput is selected; it then picks their language model.
+        if (
+            legacy_provider_id
+            and legacy_provider_id in provider_ids
+            and not (effective_parameters.get("model") if isinstance(effective_parameters, Mapping) else None)
+        ):
+            snapshot.require_model_type(legacy_provider_id, "llm")
         if standalone_provider_id:
             model_names, model_type = self._standalone_model_policy_selection(parameters)
             for model_name in model_names:
